@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:EquipmentRental"
+             x:Class="EquipmentRental.MainPage"
+             Title="Equipment Database">
+    
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Logout" Clicked="OnLogoutButtonClicked" />
+    </ContentPage.ToolbarItems>
+    
+    <ContentPage.Content>
+        <StackLayout>
+            <Label Text="Main app content goes here" HorizontalOptions="Center" VerticalOptions="CenterAndExpand" />
+        </StackLayout>
+    </ContentPage.Content>
+    
+</ContentPage>
