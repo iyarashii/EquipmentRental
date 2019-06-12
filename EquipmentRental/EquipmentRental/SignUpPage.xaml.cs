@@ -12,10 +12,13 @@ namespace EquipmentRental
 	[XamlCompilation(XamlCompilationOptions.Compile)]
 	public partial class SignUpPage : ContentPage
 	{
-		public SignUpPage ()
+        UserManager manager;
+
+        public SignUpPage ()
 		{
 			InitializeComponent ();
-		}
+            manager = UserManager.DefaultManager;
+        }
         async void OnSignUpButtonClicked(object sender, EventArgs e)
         {
             var user = new User()
@@ -27,7 +30,7 @@ namespace EquipmentRental
 
             // Sign up logic goes here
 
-            var signUpSucceeded = AreDetailsValid(user);
+            var signUpSucceeded = await AreDetailsValid(user);
             if (signUpSucceeded)
             {
                 var rootPage = Navigation.NavigationStack.FirstOrDefault();
@@ -44,9 +47,17 @@ namespace EquipmentRental
             }
         }
 
-        bool AreDetailsValid(User user)
+        async Task<bool> AreDetailsValid(User user)
         {
-            return (!string.IsNullOrWhiteSpace(user.Username) && !string.IsNullOrWhiteSpace(user.Password) && !string.IsNullOrWhiteSpace(user.Email) && user.Email.Contains("@"));
+          bool showActivityIndicator = true;
+          using (var scope = new ActivityIndicatorScope(syncIndicator, showActivityIndicator))
+          {
+             if(!string.IsNullOrWhiteSpace(user.Username) && !string.IsNullOrWhiteSpace(user.Password) && !string.IsNullOrWhiteSpace(user.Email) && user.Email.Contains("@"))
+             {
+                return await manager.SaveUserAsync(user);
+             }
+             return false;
+          }
         }
     }
 }

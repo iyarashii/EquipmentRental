@@ -14,6 +14,12 @@
             <Entry x:Name="passwordEntry" IsPassword="true" />
             <Button Text="Login" Clicked="OnLoginButtonClicked" />
             <Label x:Name="messageLabel" />
+            <ActivityIndicator
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       IsVisible="False"
+                       IsEnabled="True"
+                       x:Name="syncIndicator"/>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

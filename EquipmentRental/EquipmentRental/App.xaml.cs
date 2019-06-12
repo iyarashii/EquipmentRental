@@ -8,6 +8,7 @@ namespace EquipmentRental
     public partial class App : Application
     {
         public static bool IsUserLoggedIn { get; set; }
+        public static bool IsUserAdmin { get; set; }
 
         public App()
         {

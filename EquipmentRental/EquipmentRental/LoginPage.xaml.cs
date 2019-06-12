@@ -12,10 +12,14 @@ namespace EquipmentRental
 	[XamlCompilation(XamlCompilationOptions.Compile)]
 	public partial class LoginPage : ContentPage
 	{
-		public LoginPage ()
+        UserManager manager;
+
+        public LoginPage ()
 		{
 			InitializeComponent ();
-		}
+
+            manager = UserManager.DefaultManager;
+        }
         async void OnSignUpButtonClicked(object sender, EventArgs e)
         {
             await Navigation.PushAsync(new SignUpPage());
@@ -29,7 +33,7 @@ namespace EquipmentRental
                 Password = passwordEntry.Text
             };
 
-            var isValid = AreCredentialsCorrect(user);
+            var isValid = await AreCredentialsCorrect(user, true);
             if (isValid)
             {
                 App.IsUserLoggedIn = true;
@@ -43,9 +47,54 @@ namespace EquipmentRental
             }
         }
 
-        bool AreCredentialsCorrect(User user)
+        async Task<bool> AreCredentialsCorrect(User user, bool showActivityIndicator)
         {
-            return user.Username == Constants.Username && user.Password == Constants.Password;
+            using (var scope = new ActivityIndicatorScope(syncIndicator, showActivityIndicator))
+            {
+                var currentUser = await manager.FindUserAsync(user.Username, user.Password);
+                if (currentUser == null)
+                {
+                    return false;
+                }
+                return user.Username == currentUser.Username && user.Password == currentUser.Password;
+            }
         }
+
+        //private class ActivityIndicatorScope : IDisposable
+        //{
+        //    private bool showIndicator;
+        //    private ActivityIndicator indicator;
+        //    private Task indicatorDelay;
+
+        //    public ActivityIndicatorScope(ActivityIndicator indicator, bool showIndicator)
+        //    {
+        //        this.indicator = indicator;
+        //        this.showIndicator = showIndicator;
+
+        //        if (showIndicator)
+        //        {
+        //            indicatorDelay = Task.Delay(2000);
+        //            SetIndicatorActivity(true);
+        //        }
+        //        else
+        //        {
+        //            indicatorDelay = Task.FromResult(0);
+        //        }
+        //    }
+
+        //    private void SetIndicatorActivity(bool isActive)
+        //    {
+        //        this.indicator.IsVisible = isActive;
+        //        this.indicator.IsRunning = isActive;
+        //    }
+
+        //    public void Dispose()
+        //    {
+        //        if (showIndicator)
+        //        {
+        //            indicatorDelay.ContinueWith(t => SetIndicatorActivity(false), TaskScheduler.FromCurrentSynchronizationContext());
+        //        }
+        //    }
+        //}
     }
 }

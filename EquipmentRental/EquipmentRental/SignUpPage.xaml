@@ -13,6 +13,12 @@
             <Entry x:Name="emailEntry" />
             <Button Text="Sign Up" Clicked="OnSignUpButtonClicked" />
             <Label x:Name="messageLabel" />
+            <ActivityIndicator
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       IsVisible="False"
+                       IsEnabled="True"
+                       x:Name="syncIndicator"/>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>
