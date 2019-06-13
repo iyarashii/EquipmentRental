@@ -13,6 +13,7 @@ namespace EquipmentRental
     public partial class UserList : ContentPage
     {
         UserManager manager;
+
         public UserList()
         {
             InitializeComponent();
@@ -23,12 +24,21 @@ namespace EquipmentRental
                 var refreshButton = new Button
                 {
                     Text = "Refresh",
-                    HeightRequest = 30
+                    //HeightRequest = 30
                 };
                 refreshButton.Clicked += OnRefreshItems;
                 buttonsPanel.Children.Add(refreshButton);
             }
         }
+
+        async void OnLogoutButtonClicked(object sender, EventArgs e)
+        {
+            App.IsUserLoggedIn = false;
+            App.IsLoggedInUserAnAdmin = false;
+            Navigation.InsertPageBefore(new LoginPage(), this);
+            await Navigation.PopAsync();
+        }
+
         protected override async void OnAppearing()
         {
             base.OnAppearing();
@@ -57,8 +67,8 @@ namespace EquipmentRental
             {
                 if (Device.RuntimePlatform == Device.Android)
                 {
-                   //await DisplayAlert(user.Username, "Press-and-hold to delete/give approval user " + user.Username, "Got it!");
-                   string action = await DisplayActionSheet("User " + user.Username + " options:", "Cancel", null, "Approve", "Delete");
+                   await DisplayAlert("User " + user.Username, "Press-and-hold to see user managment options" + user.Username, "Got it!");
+                   //string action = await DisplayActionSheet("User " + user.Username + " options:", "Cancel", "Delete",  "Approve");
                 }
                 else
                 {

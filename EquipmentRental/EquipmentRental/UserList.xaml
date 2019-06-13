@@ -3,8 +3,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="EquipmentRental.UserList"
              Title="Users">
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Logout" Order="Secondary" Clicked="OnLogoutButtonClicked" />
+    </ContentPage.ToolbarItems>
     <ContentPage.Content>
-        <ScrollView>
             <Grid RowSpacing="0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -16,17 +18,27 @@
                        IsVisible="False"
                        IsEnabled="True"
                        x:Name="syncIndicator"/>
-                <StackLayout Grid.Row="0" BackgroundColor="#5ABAFF" Padding="10,30,10,5">
-                    <Label TextColor="#555555" Text="Azure App Service - User Database" />
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <StackLayout x:Name="buttonsPanel" Grid.Column="1" Orientation="Horizontal" HorizontalOptions="StartAndExpand">
-                        </StackLayout>
-                    </Grid>
-                    <Grid>
+                <StackLayout Grid.Row="0" BackgroundColor="#5ABAFF">
+                    <StackLayout Orientation="Horizontal">
+                            <Label Text="Azure App Service - User Database" HorizontalOptions="Start"/>
+                            <Grid HorizontalOptions="EndAndExpand">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackLayout x:Name="buttonsPanel" Grid.Column="1" Orientation="Horizontal">
+                                </StackLayout>
+                            </Grid>
+                    </StackLayout>
+                </StackLayout>
+                
+                <ListView x:Name="userList"
+				ItemSelected="OnSelected"
+                SeparatorVisibility="Default"
+				IsPullToRefreshEnabled="true" Refreshing="OnRefresh"
+				Grid.Row="1">
+                <ListView.Header>
+                    <Grid Padding="5, 0, 0, 0" BackgroundColor="#5ABAFF">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition/>
                             <ColumnDefinition Width="*"/>
@@ -34,45 +46,34 @@
                         <Label Text="Username"  Grid.Column="0" />
                         <Label Text="Password"  Grid.Column="1"/>
                         <Label Text="Email"  Grid.Column="2"/>
-                        <Label Text="IsAdmin"  Grid.Column="3"/>
-                        <Label Text="IsConfirmed"  Grid.Column="4"/>
+                        <Label Text="Admin"  Grid.Column="3"/>
+                        <Label Text="Confirmed"  Grid.Column="4"/>
                     </Grid>
-                </StackLayout>
-                <ListView x:Name="userList"
-				ItemSelected="OnSelected"
-				IsPullToRefreshEnabled="true" Refreshing="OnRefresh"
-				Grid.Row="1">
+                </ListView.Header>
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <ViewCell>
                                 <ViewCell.ContextActions>
                                     <MenuItem Clicked="OnDelete" Text="Delete" CommandParameter="{Binding .}"/>
-                                    <MenuItem Clicked="OnApprove" Text="Approve user" CommandParameter="{Binding .}"/>
+                                    <MenuItem Clicked="OnApprove" Text="Approve" CommandParameter="{Binding .}"/>
                                 </ViewCell.ContextActions>
-                                <StackLayout HorizontalOptions="StartAndExpand" Orientation="Horizontal" Padding="15,5,0,0">
-                                    <StackLayout Padding="5,0,0,0" VerticalOptions="StartAndExpand" Orientation="Vertical">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="*"/>
-                                            </Grid.ColumnDefinitions>
+                                <!--<StackLayout HorizontalOptions="StartAndExpand" Orientation="Horizontal" Padding="5,5,0,0">
+                                    <StackLayout VerticalOptions="StartAndExpand" Orientation="Vertical">-->
+                                    <!--<ScrollView>-->
+                                        <Grid Padding="5, 5, 0, 0">
                                             <Label Text="{Binding Username}" Grid.Column="0"  />
                                             <Label Text="{Binding Password}" Grid.Column="1"  />
                                             <Label Text="{Binding Email}" Grid.Column="2"  />
                                             <Label Text="{Binding IsAdmin}" Grid.Column="3" />
                                             <Label Text="{Binding IsConfirmed}" Grid.Column="4" />
                                         </Grid>
-                                    </StackLayout>
-                                </StackLayout>
+                                    <!--</ScrollView>-->
+                                    <!--</StackLayout>
+                                </StackLayout>-->
                             </ViewCell>
-                        </DataTemplate>
+                    </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
             </Grid>
-        </ScrollView>
     </ContentPage.Content>
 </ContentPage>

@@ -13,7 +13,7 @@ namespace EquipmentRental
         public App()
         {
             InitializeComponent();
-
+            //MainPage = new NavigationPage(new UserList());
             if (!IsUserLoggedIn)
             {
                 MainPage = new NavigationPage(new LoginPage());
