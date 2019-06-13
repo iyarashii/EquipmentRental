@@ -27,17 +27,32 @@ namespace EquipmentRental
                 Password = passwordEntry.Text,
                 Email = emailEntry.Text
             };
-
+            var checkIfUsersDatabaseIsEmpty =  await manager.GetUsersAsync();
+            if (checkIfUsersDatabaseIsEmpty.Count == 0)
+            {
+                user.IsAdmin = true;
+                user.IsConfirmed = true;
+            }
             // Sign up logic goes here
 
             var signUpSucceeded = await AreDetailsValid(user);
-            if (signUpSucceeded)
+            if (signUpSucceeded && user.IsAdmin)
             {
                 var rootPage = Navigation.NavigationStack.FirstOrDefault();
                 if (rootPage != null)
                 {
                     App.IsUserLoggedIn = true;
+                    App.IsLoggedInUserAnAdmin = true;
                     Navigation.InsertPageBefore(new MainPage(), Navigation.NavigationStack.First());
+                    await Navigation.PopToRootAsync();
+                }
+            }
+            else if(signUpSucceeded && !user.IsAdmin)
+            {
+                var rootPage = Navigation.NavigationStack.FirstOrDefault();
+                if (rootPage != null)
+                {
+                   // Navigation.InsertPageBefore(new LoginPage(), Navigation.NavigationStack.First());
                     await Navigation.PopToRootAsync();
                 }
             }

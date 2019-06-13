@@ -29,7 +29,6 @@ namespace EquipmentRental
             try
             {
                 IEnumerable<User> users = await userTable
-                    //.Where(User => !User.Done)
                     .ToEnumerableAsync();
 
                 return new ObservableCollection<User>(users);
@@ -51,7 +50,7 @@ namespace EquipmentRental
             try
             {
                 checkIfUsernameTaken = await userTable.Where(User => User.Username == user.Username).ToEnumerableAsync();
-                if(checkIfUsernameTaken != null)
+                if(checkIfUsernameTaken.FirstOrDefault() != null)
                 {
                     return false;
                 }
@@ -82,6 +81,20 @@ namespace EquipmentRental
                 Debug.WriteLine("Delete error: {0}", new[] { e.Message });
             }
         }
+
+        public async Task ApproveUserAsync(User user)
+        {
+            user.IsConfirmed = true;
+            try
+            {
+                await userTable.UpdateAsync(user);
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("Update error: {0}", new[] { e.Message });
+            }
+        }
+
         public async Task<User> FindUserAsync(string username, string password)
         {
             IEnumerable<User> currentUser;

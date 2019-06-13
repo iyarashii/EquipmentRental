@@ -13,11 +13,18 @@ namespace EquipmentRental
         {
             InitializeComponent();
         }
+
         async void OnLogoutButtonClicked(object sender, EventArgs e)
         {
             App.IsUserLoggedIn = false;
+            App.IsLoggedInUserAnAdmin = false;
             Navigation.InsertPageBefore(new LoginPage(), this);
             await Navigation.PopAsync();
+        }
+
+        async void OnUsersButtonClicked(object sender, EventArgs e)
+        {
+            await Navigation.PushAsync(new UserList());
         }
     }
 }

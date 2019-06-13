@@ -4,6 +4,7 @@
              x:Class="EquipmentRental.SignUpPage"
              Title="Sign Up">
     <ContentPage.Content>
+        <ScrollView>
         <StackLayout VerticalOptions="StartAndExpand">
             <Label Text="Username" />
             <Entry x:Name="usernameEntry" Placeholder="username" />
@@ -20,5 +21,6 @@
                        IsEnabled="True"
                        x:Name="syncIndicator"/>
         </StackLayout>
+        </ScrollView>
     </ContentPage.Content>
 </ContentPage>

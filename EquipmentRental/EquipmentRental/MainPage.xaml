@@ -7,12 +7,15 @@
     
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="Logout" Clicked="OnLogoutButtonClicked" />
+        <ToolbarItem x:Name="usersButton" Text="Users" Clicked="OnUsersButtonClicked" />
     </ContentPage.ToolbarItems>
     
     <ContentPage.Content>
+        <ScrollView>
         <StackLayout>
             <Label Text="Main app content goes here" HorizontalOptions="Center" VerticalOptions="CenterAndExpand" />
         </StackLayout>
+        </ScrollView>
     </ContentPage.Content>
     
 </ContentPage>

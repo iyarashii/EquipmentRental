@@ -4,10 +4,75 @@
              x:Class="EquipmentRental.UserList"
              Title="Users">
     <ContentPage.Content>
-        <StackLayout>
-            <Label Text="Welcome to Xamarin.Forms!"
-                VerticalOptions="CenterAndExpand" 
-                HorizontalOptions="CenterAndExpand" />
-        </StackLayout>
+        <ScrollView>
+            <Grid RowSpacing="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <ActivityIndicator Grid.RowSpan="2"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       IsVisible="False"
+                       IsEnabled="True"
+                       x:Name="syncIndicator"/>
+                <StackLayout Grid.Row="0" BackgroundColor="#5ABAFF" Padding="10,30,10,5">
+                    <Label TextColor="#555555" Text="Azure App Service - User Database" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackLayout x:Name="buttonsPanel" Grid.Column="1" Orientation="Horizontal" HorizontalOptions="StartAndExpand">
+                        </StackLayout>
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Text="Username"  Grid.Column="0" />
+                        <Label Text="Password"  Grid.Column="1"/>
+                        <Label Text="Email"  Grid.Column="2"/>
+                        <Label Text="IsAdmin"  Grid.Column="3"/>
+                        <Label Text="IsConfirmed"  Grid.Column="4"/>
+                    </Grid>
+                </StackLayout>
+                <ListView x:Name="userList"
+				ItemSelected="OnSelected"
+				IsPullToRefreshEnabled="true" Refreshing="OnRefresh"
+				Grid.Row="1">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <ViewCell>
+                                <ViewCell.ContextActions>
+                                    <MenuItem Clicked="OnDelete" Text="Delete" CommandParameter="{Binding .}"/>
+                                    <MenuItem Clicked="OnApprove" Text="Approve user" CommandParameter="{Binding .}"/>
+                                </ViewCell.ContextActions>
+                                <StackLayout HorizontalOptions="StartAndExpand" Orientation="Horizontal" Padding="15,5,0,0">
+                                    <StackLayout Padding="5,0,0,0" VerticalOptions="StartAndExpand" Orientation="Vertical">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Label Text="{Binding Username}" Grid.Column="0"  />
+                                            <Label Text="{Binding Password}" Grid.Column="1"  />
+                                            <Label Text="{Binding Email}" Grid.Column="2"  />
+                                            <Label Text="{Binding IsAdmin}" Grid.Column="3" />
+                                            <Label Text="{Binding IsConfirmed}" Grid.Column="4" />
+                                        </Grid>
+                                    </StackLayout>
+                                </StackLayout>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Grid>
+        </ScrollView>
     </ContentPage.Content>
 </ContentPage>
