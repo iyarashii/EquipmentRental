@@ -14,6 +14,8 @@ namespace EquipmentRental
         public static UserManager DefaultManager { get; private set; } = new UserManager();
         public MobileServiceClient CurrentClient { get; }
 
+        private User CurrentUser { get; set;}
+
         IMobileServiceTable<User> userTable;
 
         const string offlineDbPath = @"localstore.db";
@@ -47,10 +49,12 @@ namespace EquipmentRental
         public async Task<bool> SaveUserAsync(User user)
         {
             IEnumerable<User> checkIfUsernameTaken;
+            IEnumerable<User> checkIfEmailTaken;
             try
             {
                 checkIfUsernameTaken = await userTable.Where(User => User.Username == user.Username).ToEnumerableAsync();
-                if(checkIfUsernameTaken.FirstOrDefault() != null)
+                checkIfEmailTaken = await userTable.Where(User => User.Email == user.Email).ToEnumerableAsync();
+                if(checkIfUsernameTaken.FirstOrDefault() != null || checkIfEmailTaken.FirstOrDefault() != null)
                 {
                     return false;
                 }
@@ -102,6 +106,7 @@ namespace EquipmentRental
             {
                 currentUser = await userTable.Where(User => User.Username == username)
                     .Where(User => User.Password == password).ToEnumerableAsync();
+                CurrentUser = currentUser.FirstOrDefault();
                 return currentUser.FirstOrDefault();
             }
             catch (Exception e)

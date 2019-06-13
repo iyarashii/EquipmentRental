@@ -24,7 +24,6 @@ namespace EquipmentRental
                 var refreshButton = new Button
                 {
                     Text = "Refresh",
-                    //HeightRequest = 30
                 };
                 refreshButton.Clicked += OnRefreshItems;
                 buttonsPanel.Children.Add(refreshButton);
@@ -35,8 +34,8 @@ namespace EquipmentRental
         {
             App.IsUserLoggedIn = false;
             App.IsLoggedInUserAnAdmin = false;
-            Navigation.InsertPageBefore(new LoginPage(), this);
-            await Navigation.PopAsync();
+            Application.Current.MainPage = new NavigationPage(new LoginPage());
+            await Navigation.PopToRootAsync();
         }
 
         protected override async void OnAppearing()

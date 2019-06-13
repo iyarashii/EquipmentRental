@@ -62,6 +62,10 @@ namespace EquipmentRental
                 {
                     return false;
                 }
+                if (typedUser.IsAdmin)
+                {
+                    App.IsLoggedInUserAnAdmin = true;
+                }
                 IsTypedUserConfirmed = typedUser.IsConfirmed;
                 return user.Username == typedUser.Username && user.Password == typedUser.Password;
             }

@@ -8,13 +8,75 @@
         <ToolbarItem Text="Logout" Order="Secondary" Clicked="OnLogoutButtonClicked" />
         <ToolbarItem x:Name="usersButton" Order="Secondary"  Text="Users" Clicked="OnUsersButtonClicked" />
     </ContentPage.ToolbarItems>
-    
     <ContentPage.Content>
-        <ScrollView>
-        <StackLayout>
-            <Label Text="Main app content goes here" HorizontalOptions="Center" VerticalOptions="CenterAndExpand" />
-        </StackLayout>
-        </ScrollView>
+        <Grid RowSpacing="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <ActivityIndicator Grid.RowSpan="2"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       IsVisible="False"
+                       IsEnabled="True"
+                       x:Name="syncIndicator"/>
+            <StackLayout Grid.Row="0" BackgroundColor="#5ABAFF">
+                <StackLayout Orientation="Horizontal">
+                    <Label Text="Equipment Database" HorizontalOptions="Start"/>
+                    <Entry x:Name="newItemName" IsVisible="{Binding IsAdmin}"
+                                Placeholder="Item name" HorizontalOptions="FillAndExpand"/>
+                    <Grid x:Name="buttonsGrid" HorizontalOptions="EndAndExpand">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackLayout x:Name="buttonsPanel" Grid.Column="1" Orientation="Horizontal">
+                            <Button x:Name="addButton" IsVisible="{Binding IsAdmin}" Text="+" MinimumHeightRequest="30" Clicked="OnAdd" />
+                        </StackLayout>
+                    </Grid>
+                </StackLayout>
+            </StackLayout>
+
+            <ListView x:Name="equipmentList"
+				ItemSelected="OnSelected"
+                SeparatorVisibility="Default"
+				IsPullToRefreshEnabled="true" Refreshing="OnRefresh"
+				Grid.Row="1">
+                <ListView.Header>
+                    <Grid Padding="5, 0, 0, 0" BackgroundColor="#5ABAFF">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Text="Item"  Grid.Column="0" />
+                        <Label Text="Waiting for permission"  Grid.Column="1"/>
+                        <Label Text="Rented"  Grid.Column="2"/>
+                        <Label Text="Username"  Grid.Column="3"/>
+                        <Label Text="Email"  Grid.Column="4"/>
+                        <Label Text="Rented since"  Grid.Column="5"/>
+                        <Label Text="Rented until"  Grid.Column="6"/>
+                    </Grid>
+                </ListView.Header>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <ViewCell.ContextActions>
+                                <MenuItem Clicked="OnDelete" Text="Delete" CommandParameter="{Binding .}"/>
+                                <MenuItem Clicked="OnApprove" Text="Approve" CommandParameter="{Binding .}"/>
+                            </ViewCell.ContextActions>
+                            <Grid Padding="5, 5, 0, 0">
+                                <Label Text="{Binding ItemName}" Grid.Column="0"  />
+                                <Label Text="{Binding IsWaitingForPermission}" Grid.Column="1"  />
+                                <Label Text="{Binding IsRented}" Grid.Column="2"  />
+                                <Label Text="{Binding Username}" Grid.Column="3" />
+                                <Label Text="{Binding Email}" Grid.Column="4" />
+                                <Label Text="{Binding StartDate}" Grid.Column="5" />
+                                <Label Text="{Binding EndDate}" Grid.Column="6" />
+                            </Grid>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Grid>
     </ContentPage.Content>
-    
 </ContentPage>
