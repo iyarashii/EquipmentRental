@@ -111,26 +111,49 @@ namespace EquipmentRental
             var item = e.SelectedItem as Equipment;
             if (item != null)
             {
-                if (Device.RuntimePlatform == Device.Android)
+                if (IsAdmin)
                 {
-                    await DisplayAlert("Item " + item.ItemName, "Press-and-hold to see item managment options" + item.ItemName, "Got it!");
+                    if (Device.RuntimePlatform == Device.Android)
+                    {
+                        await DisplayAlert("Item " + item.ItemName, "Press-and-hold to see item managment options" + item.ItemName, "Got it!");
+                    }
+                    else
+                    {
+                        // Windows, not all platforms support the Context Actions yet
+                        string action = await DisplayActionSheet("Item " + item.ItemName + " options:", "Cancel", "Delete", "Approve");
+                        switch (action)
+                        {
+                            case "Cancel":
+                                break;
+                            case "Delete":
+                                await DeleteItem(item);
+                                break;
+                            case "Approve":
+                                await ApproveItemRental(item);
+                                break;
+                        }
+                    }
                 }
                 else
                 {
-                    // Windows, not all platforms support the Context Actions yet
-                    string action = await DisplayActionSheet("Item " + item.ItemName + " options:", "Cancel", "Delete", "Approve");
-                    switch (action)
+                    if (Device.RuntimePlatform == Device.Android)
                     {
-                        case "Cancel":
-                            break;
-                        case "Delete":
-                            await DeleteItem(item);
-                            break;
-                        case "Approve":
-                            await ApproveItemRental(item);
-                            break;
+                        await DisplayAlert("Item " + item.ItemName, "Press-and-hold to ask for permission to rent " + item.ItemName, "Got it!");
+                    }
+                    else
+                    {
+                        // Windows, not all platforms support the Context Actions yet
+                        string action = await DisplayActionSheet("Item " + item.ItemName + " options:", "Cancel", null, "Rent");
+                        switch (action)
+                        {
+                            case "Cancel":
+                                break;
+                            case "Rent":
+                                break;
+                        }
                     }
                 }
+                
             }
 
             // prevents background getting highlighted
