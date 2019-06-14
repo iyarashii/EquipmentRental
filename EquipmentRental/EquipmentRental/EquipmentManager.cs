@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.WindowsAzure.MobileServices;
+using Xamarin.Forms;
 
 namespace EquipmentRental
 {
@@ -78,6 +79,19 @@ namespace EquipmentRental
             catch (Exception e)
             {
                 Debug.WriteLine("Update error: {0}", new[] { e.Message });
+            }
+        }
+
+        public async Task AskToRentAsync(Equipment item, Page page)
+        {
+            item.IsWaitingForPermission = true;
+            try
+            {
+                await equipmentTable.UpdateAsync(item);
+            }
+            catch (Exception e)
+            {
+                await page.DisplayAlert("Update error:", e.Message, "OK");
             }
         }
 

@@ -58,10 +58,10 @@
                     </Grid>
                 </ListView.Header>
                 <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <ViewCell>
+                    <DataTemplate x:Name="dataTemp">
+                        <ViewCell BindingContextChanged="OnBindingContextChanged">
                             <ViewCell.ContextActions>
-                                <MenuItem Clicked="OnDelete" Text="Delete" CommandParameter="{Binding .}"/>
+                                <MenuItem Clicked="OnDelete"  Text="Delete" CommandParameter="{Binding .}"/>
                                 <MenuItem Clicked="OnApprove" Text="Approve" CommandParameter="{Binding .}"/>
                             </ViewCell.ContextActions>
                             <Grid Padding="5, 5, 0, 0">

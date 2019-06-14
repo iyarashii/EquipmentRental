@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Xamarin.Forms;
+using Xamarin.Forms.PlatformConfiguration;
 using Xamarin.Forms.Xaml;
 
 
@@ -18,10 +19,16 @@ namespace EquipmentRental
             InitializeComponent();
 
             IsAdmin = App.IsLoggedInUserAnAdmin;
+
             if (IsAdmin)
             {
                 buttonsGrid.HorizontalOptions = LayoutOptions.End;
             }
+            else
+            {
+                ToolbarItems.RemoveAt(1); // removes users button from toolbar
+            }
+
             BindingContext = this;
             //BindingContext = null;
             manager = EquipmentManager.DefaultManager;
@@ -34,19 +41,42 @@ namespace EquipmentRental
                 refreshButton.Clicked += OnRefreshItems;
                 buttonsPanel.Children.Add(refreshButton);
             }
-            //if (App.IsLoggedInUserAnAdmin == true)
-            //{
-            //    newItemName.IsVisible = true;
-            //    addButton.IsVisible = true;
-            //    BindingContext = this;
-            //}
-            //else
-            //{
-            //    newItemName.IsVisible = false;
-            //    addButton.IsVisible = false;
-            //    BindingContext = this;
-            //}
         }
+
+
+        private void OnBindingContextChanged(object sender, EventArgs e)
+        {
+            base.OnBindingContextChanged();
+
+            if (BindingContext == null)
+                return;
+
+            ViewCell theViewCell = ((ViewCell)sender);
+            var item = theViewCell.BindingContext as Equipment;
+
+            if (item != null)
+            {
+                if (!IsAdmin)
+                {
+                    theViewCell.ContextActions.Clear();
+                    if (item.IsWaitingForPermission == false && item.IsRented == false)
+                    {
+                        var menuRent = new MenuItem { Text = "Rent" };
+                        menuRent.SetBinding(MenuItem.CommandParameterProperty, new Binding("."));
+                        menuRent.Clicked += OnRent;
+                        theViewCell.ContextActions.Add(menuRent);
+                    }
+                }
+                else
+                {
+                    if(item.IsRented == true)
+                    {
+                        theViewCell.ContextActions.RemoveAt(1); // remove Approve button
+                    }
+                }
+            }
+        }
+
 
         async void OnLogoutButtonClicked(object sender, EventArgs e)
         {
@@ -95,15 +125,13 @@ namespace EquipmentRental
             equipmentList.ItemsSource = await manager.GetItemsAsync();
         }
 
-        public async void OnAdd(object sender, EventArgs e)
+        async Task AskToRentItem(Equipment item)
         {
-            
-            var item = new Equipment { ItemName = newItemName.Text, Email = "", Username = "" };
-            await AddItem(item);
-
-            newItemName.Text = string.Empty;
-            newItemName.Unfocus();
+            await manager.AskToRentAsync(item, this);
+            equipmentList.ItemsSource = await manager.GetItemsAsync();
         }
+
+  
 
         // Event handlers
         public async void OnSelected(object sender, SelectedItemChangedEventArgs e)
@@ -115,7 +143,7 @@ namespace EquipmentRental
                 {
                     if (Device.RuntimePlatform == Device.Android)
                     {
-                        await DisplayAlert("Item " + item.ItemName, "Press-and-hold to see item managment options" + item.ItemName, "Got it!");
+                        await DisplayAlert("Item " + item.ItemName, "Press-and-hold to see item managment options", "Got it!");
                     }
                     else
                     {
@@ -136,20 +164,24 @@ namespace EquipmentRental
                 }
                 else
                 {
-                    if (Device.RuntimePlatform == Device.Android)
+                    if(item.IsRented == false && item.IsWaitingForPermission == false)
                     {
-                        await DisplayAlert("Item " + item.ItemName, "Press-and-hold to ask for permission to rent " + item.ItemName, "Got it!");
-                    }
-                    else
-                    {
-                        // Windows, not all platforms support the Context Actions yet
-                        string action = await DisplayActionSheet("Item " + item.ItemName + " options:", "Cancel", null, "Rent");
-                        switch (action)
+                        if (Device.RuntimePlatform == Device.Android)
                         {
-                            case "Cancel":
-                                break;
-                            case "Rent":
-                                break;
+                            await DisplayAlert("Item " + item.ItemName, "Press-and-hold to ask for permission to rent " + item.ItemName, "Got it!");
+                        }
+                        else
+                        {
+                            // Windows, not all platforms support the Context Actions yet
+                            string action = await DisplayActionSheet("Item " + item.ItemName + " options:", "Cancel", null, "Rent");
+                            switch (action)
+                            {
+                                case "Cancel":
+                                    break;
+                                case "Rent":
+                                    await AskToRentItem(item);
+                                    break;
+                            }
                         }
                     }
                 }
@@ -158,6 +190,17 @@ namespace EquipmentRental
 
             // prevents background getting highlighted
             equipmentList.SelectedItem = null;
+        }
+
+        // event handler for "+" button
+        public async void OnAdd(object sender, EventArgs e)
+        {
+
+            var item = new Equipment { ItemName = newItemName.Text, Email = "", Username = "" };
+            await AddItem(item);
+
+            newItemName.Text = string.Empty;
+            newItemName.Unfocus();
         }
 
         // http://developer.xamarin.com/guides/cross-platform/xamarin-forms/working-with/listview/#context
@@ -173,6 +216,13 @@ namespace EquipmentRental
             var mi = ((MenuItem)sender);
             var item = mi.CommandParameter as Equipment;
             await ApproveItemRental(item);
+        }
+
+        public async void OnRent(object sender, EventArgs e)
+        {
+            var mi = ((MenuItem)sender);
+            var item = mi.CommandParameter as Equipment;
+            await AskToRentItem(item);
         }
 
         // http://developer.xamarin.com/guides/cross-platform/xamarin-forms/working-with/listview/#pulltorefresh
