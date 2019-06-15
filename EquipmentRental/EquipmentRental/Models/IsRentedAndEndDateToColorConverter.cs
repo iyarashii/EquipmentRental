@@ -28,7 +28,7 @@ namespace EquipmentRental
             {
                 return Color.Default;
             }
-            if ((bool)value && endDate > DateTime.Today)
+            if ((bool)value && endDate >= DateTime.Today)
             {
                 return Color.Green;
             }

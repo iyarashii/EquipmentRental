@@ -203,7 +203,7 @@ namespace EquipmentRental
                                 await DeleteItem(item);
                                 break;
                             case "Approve":
-                                DisplayDataSelection(item);
+                                await DisplayDataSelection(item);
                                 //await ApproveItemRental(item);
                                 break;
                             case "Mark as returned":
@@ -230,7 +230,7 @@ namespace EquipmentRental
                                 case "Cancel":
                                     break;
                                 case "Rent":
-                                    DisplayDataSelection(item);
+                                    await DisplayDataSelection(item);
                                     BindingContext = this;
                                     break;
                             }
@@ -263,19 +263,19 @@ namespace EquipmentRental
             await DeleteItem(item);
         }
 
-        public void OnApprove(object sender, EventArgs e)
+        public async void OnApprove(object sender, EventArgs e)
         {
             var mi = ((MenuItem)sender);
             var item = mi.CommandParameter as Equipment;
-            DisplayDataSelection(item);
+            await DisplayDataSelection(item);
             //await ApproveItemRental(item);
         }
 
-        public void OnRent(object sender, EventArgs e)
+        public async void OnRent(object sender, EventArgs e)
         {
             var mi = ((MenuItem)sender);
             var item = mi.CommandParameter as Equipment;
-            DisplayDataSelection(item);
+            await DisplayDataSelection(item);
         }
         public async void OnReturned(object sender, EventArgs e)
         {
@@ -304,7 +304,7 @@ namespace EquipmentRental
             }
         }
 
-        public async void DisplayDataSelection(Equipment item)
+        public async Task DisplayDataSelection(Equipment item)
         {
             SelectedEquipment = item;
             BindingContext = null;
