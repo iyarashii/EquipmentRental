@@ -14,7 +14,7 @@ namespace EquipmentRental
         public static UserManager DefaultManager { get; private set; } = new UserManager();
         public MobileServiceClient CurrentClient { get; }
 
-        private User CurrentUser { get; set;}
+        public static User CurrentUser { get; set;}
 
         IMobileServiceTable<User> userTable;
 
