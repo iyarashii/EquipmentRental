@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,19 +16,21 @@ namespace EquipmentRental
         public bool IsAdmin { get; set; }
         public bool SettingDate { get; set; }
         public Equipment SelectedEquipment { get; set; }
-        public DateTime MinStartDate { get; set; } 
+        public DateTime MinStartDate { get; set; }
         public DateTime MinEndDate { get; set; }
-
-        public DateTime SelectedEndDate { get; set; }
 
         public MainPage()
         {
             InitializeComponent();
 
             IsAdmin = App.IsLoggedInUserAnAdmin;
-            MinStartDate = DateTime.Today.Date;
-            MinEndDate = DateTime.Today.Date.AddDays(1);
-            SelectedEndDate = MinEndDate;
+            
+            MinStartDate = DateTime.Now.Date;
+            MinEndDate = DateTime.Now.Date.AddDays(1);
+            endDate.Date = MinEndDate;
+            startDate.Date = MinStartDate;
+
+
             SettingDate = false;
             if (IsAdmin)
             {
@@ -39,8 +42,9 @@ namespace EquipmentRental
             }
 
             BindingContext = this;
-            //BindingContext = null;
+
             manager = EquipmentManager.DefaultManager;
+
             if (Device.RuntimePlatform == Device.UWP)
             {
                 var refreshButton = new Button
@@ -81,6 +85,18 @@ namespace EquipmentRental
                     if(item.IsRented == true)
                     {
                         theViewCell.ContextActions.RemoveAt(1); // remove Approve button
+                    }
+                    if (item.IsWaitingForPermission)
+                    {
+                        theViewCell.ContextActions.RemoveAt(2); // remove Returned button
+                        var menuDeny = new MenuItem { Text = "Deny" };
+                        menuDeny.SetBinding(MenuItem.CommandParameterProperty, new Binding("."));
+                        menuDeny.Clicked += OnReturned;
+                        theViewCell.ContextActions.Add(menuDeny);
+                    }
+                    if(!item.IsRented && !item.IsWaitingForPermission)
+                    {
+                        theViewCell.ContextActions.RemoveAt(2); // remove Returned button
                     }
                 }
             }
@@ -140,13 +156,17 @@ namespace EquipmentRental
             equipmentList.ItemsSource = await manager.GetItemsAsync();
         }
 
-  
+        async Task MarkItemAsReturned(Equipment item)
+        {
+            await manager.MarkItemAsReturnedAsync(item, this);
+            equipmentList.ItemsSource = await manager.GetItemsAsync();
+        }
+
+
 
         // Event handlers
         public async void OnSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            // tutaj schowac entry i przycisk do daty
-
             var item = e.SelectedItem as Equipment;
             if (item != null)
             {
@@ -161,8 +181,20 @@ namespace EquipmentRental
                     }
                     else
                     {
+                        string action;
                         // Windows, not all platforms support the Context Actions yet
-                        string action = await DisplayActionSheet("Item " + item.ItemName + " options:", "Cancel", "Delete", "Approve");
+                        if (item.IsRented == true)
+                        {
+                            action = await DisplayActionSheet("Item " + item.ItemName + " options:", "Cancel", "Delete", "Mark as returned");
+                        }
+                        else if(item.IsWaitingForPermission == true)
+                        {
+                            action = await DisplayActionSheet("Item " + item.ItemName + " options:", "Cancel", "Delete", "Approve", "Deny");
+                        }
+                        else
+                        {
+                            action = await DisplayActionSheet("Item " + item.ItemName + " options:", "Cancel", "Delete", "Approve");
+                        }
                         switch (action)
                         {
                             case "Cancel":
@@ -171,7 +203,12 @@ namespace EquipmentRental
                                 await DeleteItem(item);
                                 break;
                             case "Approve":
-                                await ApproveItemRental(item);
+                                DisplayDataSelection(item);
+                                //await ApproveItemRental(item);
+                                break;
+                            case "Mark as returned":
+                            case "Deny":
+                                await MarkItemAsReturned(item);
                                 break;
                         }
                     }
@@ -226,11 +263,12 @@ namespace EquipmentRental
             await DeleteItem(item);
         }
 
-        public async void OnApprove(object sender, EventArgs e)
+        public void OnApprove(object sender, EventArgs e)
         {
             var mi = ((MenuItem)sender);
             var item = mi.CommandParameter as Equipment;
-            await ApproveItemRental(item);
+            DisplayDataSelection(item);
+            //await ApproveItemRental(item);
         }
 
         public void OnRent(object sender, EventArgs e)
@@ -239,25 +277,55 @@ namespace EquipmentRental
             var item = mi.CommandParameter as Equipment;
             DisplayDataSelection(item);
         }
+        public async void OnReturned(object sender, EventArgs e)
+        {
+            var mi = ((MenuItem)sender);
+            var item = mi.CommandParameter as Equipment;
+            await MarkItemAsReturned(item);
+        }
+        
         public async void OnAcceptDate(object sender, EventArgs e)
         {
             BindingContext = null;
-            SelectedEquipment.Username = UserManager.CurrentUser.Username;
-            SelectedEquipment.Email = UserManager.CurrentUser.Email;
-            SelectedEquipment.StartDate = startDate.Date.Date;
-            SelectedEquipment.EndDate = endDate.Date.Date;
+            SelectedEquipment.StartDate = startDate.Date;
+            SelectedEquipment.EndDate = endDate.Date;
             SettingDate = false;
             BindingContext = this;
-            await AskToRentItem(SelectedEquipment);
+
+            if (!IsAdmin)
+            {
+                SelectedEquipment.Username = UserManager.CurrentUser.Username;
+                SelectedEquipment.Email = UserManager.CurrentUser.Email;
+                await AskToRentItem(SelectedEquipment);
+            }
+            else
+            {
+                await ApproveItemRental(SelectedEquipment);
+            }
         }
 
         public async void DisplayDataSelection(Equipment item)
         {
-            BindingContext = null;
-            SettingDate = true;
-            BindingContext = this;
             SelectedEquipment = item;
-            await DisplayAlert("To rent item " + item.ItemName, "Select start and end date of rental period and click accept to send rent request.", "OK");
+            BindingContext = null;
+            if (IsAdmin)
+            {
+                startDate.Date = SelectedEquipment.StartDate ?? MinStartDate;
+                endDate.Date = SelectedEquipment.EndDate ?? MinEndDate;
+                SettingDate = true;
+                BindingContext = this;
+                await DisplayAlert("Check rental period for item " + item.ItemName + ".", "You can modify selected start date and end date. Click Accept to approve renting item for selected period of time.", "OK");
+            }
+            else
+            {
+                endDate.Date = MinEndDate;
+                startDate.Date = MinStartDate;
+                SettingDate = true;
+                BindingContext = this;
+                await DisplayAlert("To rent item " + item.ItemName + ":", "Select start and end date of rental period and click accept to send rent request.", "OK");
+            }
+            Debug.WriteLine(endDate.Date);
+            Debug.WriteLine(startDate.Date);
         }
 
         // http://developer.xamarin.com/guides/cross-platform/xamarin-forms/working-with/listview/#pulltorefresh

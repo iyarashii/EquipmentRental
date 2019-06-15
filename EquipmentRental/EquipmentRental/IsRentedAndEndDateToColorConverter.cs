@@ -15,7 +15,6 @@ namespace EquipmentRental
             if (parameter is Label endDateLabel)
             {
                 var endDateLabelValue = endDateLabel.Text;
-                Debug.WriteLine((object)endDateLabelValue);
                 try
                 {
                     endDate = DateTime.ParseExact(endDateLabelValue, "D", CultureInfo.CurrentCulture);

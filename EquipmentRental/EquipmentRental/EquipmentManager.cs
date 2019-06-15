@@ -95,5 +95,23 @@ namespace EquipmentRental
             }
         }
 
+        public async Task MarkItemAsReturnedAsync(Equipment item, Page page)
+        {
+            item.IsWaitingForPermission = false;
+            item.IsRented = false;
+            item.Username = null;
+            item.Email = null;
+            item.StartDate = null;
+            item.EndDate = null;
+            try
+            {
+                await equipmentTable.UpdateAsync(item);
+            }
+            catch (Exception e)
+            {
+                await page.DisplayAlert("Update error:", e.Message, "OK");
+            }
+        }
+
     }
 }

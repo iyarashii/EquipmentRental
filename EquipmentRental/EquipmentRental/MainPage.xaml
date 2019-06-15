@@ -2,7 +2,6 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:EquipmentRental"
-             xmlns:sys="clr-namespace:System;assembly=netstandard"
              x:Class="EquipmentRental.MainPage"
              Title="Equipment Database">
     <ContentPage.ToolbarItems>
@@ -44,10 +43,8 @@
                 </StackLayout>
                 <StackLayout x:Name="dateLayout" IsVisible="{Binding SettingDate}" Orientation="Horizontal">
                     <Grid  HorizontalOptions="FillAndExpand">
-                        <!--<Entry x:Name="startDate" Placeholder="DD/MM/YYYY - Start date" Grid.Column="0" />-->
-                        <DatePicker x:Name="startDate"  MinimumDate="{Binding MinStartDate}" Grid.Column="0" />
-                        <DatePicker x:Name="endDate" Date="{Binding SelectedEndDate}" MinimumDate="{Binding MinEndDate}" Grid.Column="1" />
-                        <!--<Entry x:Name="endDate" Placeholder="DD/MM/YYYY - End date" Grid.Column="1" />-->
+                        <DatePicker  x:Name="startDate" MinimumDate="{Binding MinStartDate}" Grid.Column="0" />
+                        <DatePicker x:Name="endDate"  MinimumDate="{Binding MinEndDate}" Grid.Column="1" />
                     </Grid>
                     <Button x:Name="acceptDateButton" Text="Accept" HorizontalOptions="End" Clicked="OnAcceptDate"/>
                 </StackLayout>
@@ -79,6 +76,7 @@
                             <ViewCell.ContextActions>
                                 <MenuItem Clicked="OnDelete"  Text="Delete" CommandParameter="{Binding .}"/>
                                 <MenuItem Clicked="OnApprove" Text="Approve" CommandParameter="{Binding .}"/>
+                                <MenuItem Clicked="OnReturned" Text="Mark as returned" CommandParameter="{Binding .}"/>
                             </ViewCell.ContextActions>
                             <Grid BackgroundColor="{Binding IsWaitingForPermission, Converter={StaticResource IsWaitingToColor}}" >
                                 <Label x:Name="endDateLabel"  Text="{Binding EndDate, StringFormat='{0:D}'}" IsVisible="False"/>
