@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Xamarin.Forms;
-using Xamarin.Forms.PlatformConfiguration;
 using Xamarin.Forms.Xaml;
 
 
@@ -14,12 +13,22 @@ namespace EquipmentRental
     {
         EquipmentManager manager;
         public bool IsAdmin { get; set; }
+        public bool SettingDate { get; set; }
+        public Equipment SelectedEquipment { get; set; }
+        public DateTime MinStartDate { get; set; } 
+        public DateTime MinEndDate { get; set; }
+
+        public DateTime SelectedEndDate { get; set; }
+
         public MainPage()
         {
             InitializeComponent();
 
             IsAdmin = App.IsLoggedInUserAnAdmin;
-
+            MinStartDate = DateTime.Today.Date;
+            MinEndDate = DateTime.Today.Date.AddDays(1);
+            SelectedEndDate = MinEndDate;
+            SettingDate = false;
             if (IsAdmin)
             {
                 buttonsGrid.HorizontalOptions = LayoutOptions.End;
@@ -136,9 +145,14 @@ namespace EquipmentRental
         // Event handlers
         public async void OnSelected(object sender, SelectedItemChangedEventArgs e)
         {
+            // tutaj schowac entry i przycisk do daty
+
             var item = e.SelectedItem as Equipment;
             if (item != null)
             {
+                BindingContext = null;
+                SettingDate = false;
+                BindingContext = this;
                 if (IsAdmin)
                 {
                     if (Device.RuntimePlatform == Device.Android)
@@ -179,7 +193,8 @@ namespace EquipmentRental
                                 case "Cancel":
                                     break;
                                 case "Rent":
-                                    await AskToRentItem(item);
+                                    DisplayDataSelection(item);
+                                    BindingContext = this;
                                     break;
                             }
                         }
@@ -218,11 +233,31 @@ namespace EquipmentRental
             await ApproveItemRental(item);
         }
 
-        public async void OnRent(object sender, EventArgs e)
+        public void OnRent(object sender, EventArgs e)
         {
             var mi = ((MenuItem)sender);
             var item = mi.CommandParameter as Equipment;
-            await AskToRentItem(item);
+            DisplayDataSelection(item);
+        }
+        public async void OnAcceptDate(object sender, EventArgs e)
+        {
+            BindingContext = null;
+            SelectedEquipment.Username = UserManager.CurrentUser.Username;
+            SelectedEquipment.Email = UserManager.CurrentUser.Email;
+            SelectedEquipment.StartDate = startDate.Date.Date;
+            SelectedEquipment.EndDate = endDate.Date.Date;
+            SettingDate = false;
+            BindingContext = this;
+            await AskToRentItem(SelectedEquipment);
+        }
+
+        public async void DisplayDataSelection(Equipment item)
+        {
+            BindingContext = null;
+            SettingDate = true;
+            BindingContext = this;
+            SelectedEquipment = item;
+            await DisplayAlert("To rent item " + item.ItemName, "Select start and end date of rental period and click accept to send rent request.", "OK");
         }
 
         // http://developer.xamarin.com/guides/cross-platform/xamarin-forms/working-with/listview/#pulltorefresh

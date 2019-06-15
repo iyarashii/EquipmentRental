@@ -2,12 +2,19 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:EquipmentRental"
+             xmlns:sys="clr-namespace:System;assembly=netstandard"
              x:Class="EquipmentRental.MainPage"
              Title="Equipment Database">
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="Logout" Order="Secondary" Clicked="OnLogoutButtonClicked" />
         <ToolbarItem x:Name="usersButton" Order="Secondary"  Text="Users" Clicked="OnUsersButtonClicked" />
     </ContentPage.ToolbarItems>
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <local:IsWaitingForPermissionToColorConverter x:Key="IsWaitingToColor"></local:IsWaitingForPermissionToColorConverter>
+            <local:IsRentedAndEndDateToColorConverter x:Key="IsReturnedOnTime"></local:IsRentedAndEndDateToColorConverter>
+        </ResourceDictionary>
+    </ContentPage.Resources>
     <ContentPage.Content>
         <Grid RowSpacing="0">
             <Grid.RowDefinitions>
@@ -22,7 +29,7 @@
                        x:Name="syncIndicator"/>
             <StackLayout Grid.Row="0" BackgroundColor="#5ABAFF">
                 <StackLayout Orientation="Horizontal">
-                    <Label Text="Equipment Database" HorizontalOptions="Start"/>
+                    <Label Text="Add item:" IsVisible="{Binding IsAdmin}" HorizontalOptions="Start"/>
                     <Entry x:Name="newItemName" IsVisible="{Binding IsAdmin}"
                                 Placeholder="Item name" HorizontalOptions="FillAndExpand"/>
                     <Grid x:Name="buttonsGrid" HorizontalOptions="EndAndExpand">
@@ -34,6 +41,15 @@
                             <Button x:Name="addButton" IsVisible="{Binding IsAdmin}" Text="+" MinimumHeightRequest="30" Clicked="OnAdd" />
                         </StackLayout>
                     </Grid>
+                </StackLayout>
+                <StackLayout x:Name="dateLayout" IsVisible="{Binding SettingDate}" Orientation="Horizontal">
+                    <Grid  HorizontalOptions="FillAndExpand">
+                        <!--<Entry x:Name="startDate" Placeholder="DD/MM/YYYY - Start date" Grid.Column="0" />-->
+                        <DatePicker x:Name="startDate"  MinimumDate="{Binding MinStartDate}" Grid.Column="0" />
+                        <DatePicker x:Name="endDate" Date="{Binding SelectedEndDate}" MinimumDate="{Binding MinEndDate}" Grid.Column="1" />
+                        <!--<Entry x:Name="endDate" Placeholder="DD/MM/YYYY - End date" Grid.Column="1" />-->
+                    </Grid>
+                    <Button x:Name="acceptDateButton" Text="Accept" HorizontalOptions="End" Clicked="OnAcceptDate"/>
                 </StackLayout>
             </StackLayout>
 
@@ -58,20 +74,23 @@
                     </Grid>
                 </ListView.Header>
                 <ListView.ItemTemplate>
-                    <DataTemplate x:Name="dataTemp">
+                    <DataTemplate>
                         <ViewCell BindingContextChanged="OnBindingContextChanged">
                             <ViewCell.ContextActions>
                                 <MenuItem Clicked="OnDelete"  Text="Delete" CommandParameter="{Binding .}"/>
                                 <MenuItem Clicked="OnApprove" Text="Approve" CommandParameter="{Binding .}"/>
                             </ViewCell.ContextActions>
-                            <Grid Padding="5, 5, 0, 0">
+                            <Grid BackgroundColor="{Binding IsWaitingForPermission, Converter={StaticResource IsWaitingToColor}}" >
+                                <Label x:Name="endDateLabel"  Text="{Binding EndDate, StringFormat='{0:D}'}" IsVisible="False"/>
+                                <Grid BackgroundColor="{Binding IsRented, Converter={StaticResource IsReturnedOnTime}, ConverterParameter={x:Reference Name=endDateLabel}}" Padding="5, 5, 0, 0">
                                 <Label Text="{Binding ItemName}" Grid.Column="0"  />
                                 <Label Text="{Binding IsWaitingForPermission}" Grid.Column="1"  />
                                 <Label Text="{Binding IsRented}" Grid.Column="2"  />
                                 <Label Text="{Binding Username}" Grid.Column="3" />
                                 <Label Text="{Binding Email}" Grid.Column="4" />
-                                <Label Text="{Binding StartDate}" Grid.Column="5" />
-                                <Label Text="{Binding EndDate}" Grid.Column="6" />
+                                <Label Text="{Binding StartDate, StringFormat='{0:dd/MM/yyyy}'}" Grid.Column="5" />
+                                <Label Text="{Binding EndDate, StringFormat='{0:dd/MM/yyyy}'}" Grid.Column="6" />
+                                </Grid>
                             </Grid>
                         </ViewCell>
                     </DataTemplate>
