@@ -4,9 +4,11 @@
              x:Class="EquipmentRental.LoginPage"
              Title="Login">
     <ContentPage.ToolbarItems>
+        <!-- toolbar button used for registering as new user, order is secondary because primary looks bad on UWP -->
         <ToolbarItem Text="Sign Up" Order="Secondary" Clicked="OnSignUpButtonClicked" />
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
+        <!-- scroll view so that you can see everything on small android screens -->
         <ScrollView>
         <StackLayout VerticalOptions="StartAndExpand">
             <Label Text="Username" />
@@ -15,6 +17,7 @@
             <Entry x:Name="passwordEntry" IsPassword="true" />
             <Button Text="Login" Clicked="OnLoginButtonClicked" />
             <Label x:Name="messageLabel" />
+            <!-- activity indicator used for displaying database loading animation -->
             <ActivityIndicator
                        HorizontalOptions="Center"
                        VerticalOptions="Center"
