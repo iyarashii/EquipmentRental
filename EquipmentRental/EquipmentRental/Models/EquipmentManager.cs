@@ -29,9 +29,18 @@ namespace EquipmentRental
         {
             try
             {
-                IEnumerable<Equipment> items = await equipmentTable
+                IEnumerable<Equipment> items;
+                if (App.IsLoggedInUserAnAdmin == true)
+                {
+                    items = await equipmentTable
                     .ToEnumerableAsync();
-
+                }
+                else
+                {
+                    items = await equipmentTable
+                    .Where(Equipment => Equipment.IsRented == false && Equipment.Username == null || Equipment.Username == UserManager.CurrentUser.Username)
+                    .ToEnumerableAsync();
+                }
                 return new ObservableCollection<Equipment>(items);
             }
             catch (MobileServiceInvalidOperationException msioe)
