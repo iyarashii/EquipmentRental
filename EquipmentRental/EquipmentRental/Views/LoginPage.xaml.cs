@@ -38,7 +38,7 @@ namespace EquipmentRental
         // event handler for login button
         async void OnLoginButtonClicked(object sender, EventArgs e)
         {
-            // save login credentials to local variable user
+            // save typed login credentials to local variable user
             var user = new User
             {
                 Username = usernameEntry.Text,
