@@ -28,7 +28,7 @@ namespace EquipmentRental
             try
             {
                 IEnumerable<Equipment> items;
-                if (App.IsLoggedInUserAnAdmin == true)
+                if (App.IsLoggedInUserAnAdmin)
                 {
                     items = await equipmentTable
                     .ToEnumerableAsync();
@@ -36,7 +36,7 @@ namespace EquipmentRental
                 else
                 {
                     items = await equipmentTable
-                    .Where(Equipment => Equipment.IsRented == false && Equipment.Username == null || Equipment.Username == UserManager.CurrentUser.Username)
+                    .Where(Equipment => !Equipment.IsRented && Equipment.Username == null || Equipment.Username == UserManager.CurrentUser.Username)
                     .ToEnumerableAsync();
                 }
                 return new ObservableCollection<Equipment>(items);

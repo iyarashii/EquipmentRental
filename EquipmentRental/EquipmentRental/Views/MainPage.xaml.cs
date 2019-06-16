@@ -262,13 +262,6 @@ namespace EquipmentRental
             await DeleteItem(item);
         }
 
-        //public async void OnApprove(object sender, EventArgs e)
-        //{
-        //    var mi = ((MenuItem)sender);
-        //    var item = mi.CommandParameter as Equipment;
-        //    await DisplayDataSelection(item);
-        //}
-
         public async void OnRentOrApprove(object sender, EventArgs e)
         {
             var mi = ((MenuItem)sender);
