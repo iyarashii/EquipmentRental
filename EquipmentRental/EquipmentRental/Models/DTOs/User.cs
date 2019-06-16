@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 
 namespace EquipmentRental
 {
+    // Data transfer object for User table in azure database
     public class User
     {
         [JsonProperty(PropertyName = "id")]
