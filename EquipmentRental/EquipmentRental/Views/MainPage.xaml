@@ -10,8 +10,8 @@
     </ContentPage.ToolbarItems>
     <ContentPage.Resources>
         <ResourceDictionary>
-            <local:IsWaitingForPermissionToColorConverter x:Key="IsWaitingToColor"></local:IsWaitingForPermissionToColorConverter>
-            <local:IsRentedAndEndDateToColorConverter x:Key="IsReturnedOnTime"></local:IsRentedAndEndDateToColorConverter>
+            <local:IsWaitingForPermissionToColorConverter x:Key="IsWaitingToColor"/>
+            <local:IsRentedAndEndDateToColorConverter x:Key="IsReturnedOnTime"/>
         </ResourceDictionary>
     </ContentPage.Resources>
     <ContentPage.Content>
@@ -43,10 +43,12 @@
                 </StackLayout>
                 <StackLayout x:Name="dateLayout" IsVisible="{Binding SettingDate}" Orientation="Horizontal">
                     <Grid  HorizontalOptions="FillAndExpand">
-                        <DatePicker  x:Name="startDate" MinimumDate="{Binding MinStartDate}" Grid.Column="0" />
-                        <DatePicker x:Name="endDate"  MinimumDate="{Binding MinEndDate}" Grid.Column="1" />
+                        <DatePicker  x:Name="startDate" MinimumDate="{Binding MinStartDate}" Grid.Row="0" Grid.Column="0" />
+                        <DatePicker x:Name="endDate"  MinimumDate="{Binding MinEndDate}" Grid.Row="0" Grid.Column="1" />
+                        <Entry x:Name="usernameEntry" Placeholder="username" Grid.Row="1" Grid.Column="0"/>
+                        <Entry x:Name="emailEntry" Placeholder="email" Grid.Row="1" Grid.Column="1"/>
                     </Grid>
-                    <Button x:Name="acceptDateButton" Text="Accept" HorizontalOptions="End" Clicked="OnAcceptDate"/>
+                    <Button x:Name="acceptDateButton" Text="Accept" Grid.RowSpan="2" HorizontalOptions="End" Clicked="OnAccept"/>
                 </StackLayout>
             </StackLayout>
 

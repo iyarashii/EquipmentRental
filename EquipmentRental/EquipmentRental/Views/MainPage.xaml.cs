@@ -275,11 +275,13 @@ namespace EquipmentRental
             await MarkItemAsReturned(item);
         }
         
-        public async void OnAcceptDate(object sender, EventArgs e)
+        public async void OnAccept(object sender, EventArgs e)
         {
             BindingContext = null;
             SelectedEquipment.StartDate = startDate.Date;
             SelectedEquipment.EndDate = endDate.Date;
+            SelectedEquipment.Username = usernameEntry.Text;
+            SelectedEquipment.Email = emailEntry.Text;
             SettingDate = false;
             BindingContext = this;
 
@@ -293,6 +295,8 @@ namespace EquipmentRental
             {
                 await ApproveItemRental(SelectedEquipment);
             }
+            usernameEntry.Text = string.Empty;
+            emailEntry.Text = string.Empty;
         }
 
         public async Task DisplayDataSelection(Equipment item)
@@ -303,6 +307,8 @@ namespace EquipmentRental
             {
                 startDate.Date = SelectedEquipment.StartDate ?? MinStartDate;
                 endDate.Date = SelectedEquipment.EndDate ?? MinEndDate;
+                usernameEntry.Text = SelectedEquipment.Username;
+                emailEntry.Text = SelectedEquipment.Email;
                 SettingDate = true;
                 BindingContext = this;
                 await DisplayAlert("Check rental period for item " + item.ItemName + ".", "You can modify selected start date and end date. Click Accept to approve renting item for selected period of time.", "OK");
