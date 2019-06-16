@@ -12,12 +12,12 @@ namespace EquipmentRental
     class IsRentedAndEndDateToColorConverter : IValueConverter
     {
         // implementation of IValueConverter.Convert method
-        // this method receives values from 2 binded properties one as value parameter and 2nd as secondValue parameter
-        public object Convert(object value, Type targetType, object secondValue, CultureInfo culture)
+        // this method receives values from 2 binded properties one is passed as value object and other as parameter object
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             DateTime endDate;
             // pattern matching used to check if 2nd value is Label
-            if (secondValue is Label endDateLabel)
+            if (parameter is Label endDateLabel)
             {
                 // assignment of Label.Text property to local variable
                 var endDateLabelValue = endDateLabel.Text;
