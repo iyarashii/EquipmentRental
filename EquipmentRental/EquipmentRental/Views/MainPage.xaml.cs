@@ -268,7 +268,6 @@ namespace EquipmentRental
             var mi = ((MenuItem)sender);
             var item = mi.CommandParameter as Equipment;
             await DisplayDataSelection(item);
-            //await ApproveItemRental(item);
         }
 
         public async void OnRent(object sender, EventArgs e)
