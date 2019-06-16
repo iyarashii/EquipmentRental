@@ -45,8 +45,8 @@
                     <Grid  HorizontalOptions="FillAndExpand">
                         <DatePicker  x:Name="startDate" MinimumDate="{Binding MinStartDate}" Grid.Row="0" Grid.Column="0" />
                         <DatePicker x:Name="endDate"  MinimumDate="{Binding MinEndDate}" Grid.Row="0" Grid.Column="1" />
-                        <Entry x:Name="usernameEntry" Placeholder="username" Grid.Row="1" Grid.Column="0"/>
-                        <Entry x:Name="emailEntry" Placeholder="email" Grid.Row="1" Grid.Column="1"/>
+                        <Entry IsVisible="{Binding IsAdmin}" x:Name="usernameEntry" Placeholder="username" Grid.Row="1" Grid.Column="0"/>
+                        <Entry IsVisible="{Binding IsAdmin}" x:Name="emailEntry" Placeholder="email" Grid.Row="1" Grid.Column="1"/>
                     </Grid>
                     <Button x:Name="acceptDateButton" Text="Accept" Grid.RowSpan="2" HorizontalOptions="End" Clicked="OnAccept"/>
                 </StackLayout>
