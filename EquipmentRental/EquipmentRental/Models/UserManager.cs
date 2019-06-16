@@ -16,9 +16,7 @@ namespace EquipmentRental
 
         public static User CurrentUser { get; set;}
 
-        IMobileServiceTable<User> userTable;
-
-        const string offlineDbPath = @"localstore.db";
+        readonly IMobileServiceTable<User> userTable;
 
         private UserManager()
         {

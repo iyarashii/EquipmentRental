@@ -51,8 +51,7 @@ namespace EquipmentRental
             {
                 var rootPage = Navigation.NavigationStack.FirstOrDefault();
                 if (rootPage != null)
-                {
-                   // Navigation.InsertPageBefore(new LoginPage(), Navigation.NavigationStack.First());
+                {   
                     await Navigation.PopToRootAsync();
                 }
             }

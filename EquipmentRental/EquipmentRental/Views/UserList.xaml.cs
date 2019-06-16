@@ -67,12 +67,10 @@ namespace EquipmentRental
                 if (Device.RuntimePlatform == Device.Android)
                 {
                    await DisplayAlert("User " + user.Username, "Press-and-hold to see user managment options" + user.Username, "Got it!");
-                   //string action = await DisplayActionSheet("User " + user.Username + " options:", "Cancel", "Delete",  "Approve");
                 }
                 else
                 {
                     // Windows, not all platforms support the Context Actions yet
-                    //if (await DisplayAlert("Mark completed?", "Do you wish to delete " + user.Username + "?", "Delete", "Cancel"))
                     string action = await DisplayActionSheet("User " + user.Username + " options:", "Cancel", "Delete", "Approve");
                     switch (action)
                     {

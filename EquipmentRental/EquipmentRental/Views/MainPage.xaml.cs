@@ -72,17 +72,17 @@ namespace EquipmentRental
                 if (!IsAdmin)
                 {
                     theViewCell.ContextActions.Clear();
-                    if (item.IsWaitingForPermission == false && item.IsRented == false)
+                    if (!item.IsWaitingForPermission && !item.IsRented)
                     {
                         var menuRent = new MenuItem { Text = "Rent" };
                         menuRent.SetBinding(MenuItem.CommandParameterProperty, new Binding("."));
-                        menuRent.Clicked += OnRent;
+                        menuRent.Clicked += OnRentOrApprove;
                         theViewCell.ContextActions.Add(menuRent);
                     }
                 }
                 else
                 {
-                    if(item.IsRented == true)
+                    if(item.IsRented)
                     {
                         theViewCell.ContextActions.RemoveAt(1); // remove Approve button
                     }
@@ -183,11 +183,11 @@ namespace EquipmentRental
                     {
                         string action;
                         // Windows, not all platforms support the Context Actions yet
-                        if (item.IsRented == true)
+                        if (item.IsRented)
                         {
                             action = await DisplayActionSheet("Item " + item.ItemName + " options:", "Cancel", "Delete", "Mark as returned");
                         }
-                        else if(item.IsWaitingForPermission == true)
+                        else if(item.IsWaitingForPermission)
                         {
                             action = await DisplayActionSheet("Item " + item.ItemName + " options:", "Cancel", "Delete", "Approve", "Deny");
                         }
@@ -204,7 +204,6 @@ namespace EquipmentRental
                                 break;
                             case "Approve":
                                 await DisplayDataSelection(item);
-                                //await ApproveItemRental(item);
                                 break;
                             case "Mark as returned":
                             case "Deny":
@@ -215,7 +214,7 @@ namespace EquipmentRental
                 }
                 else
                 {
-                    if(item.IsRented == false && item.IsWaitingForPermission == false)
+                    if(!item.IsRented && !item.IsWaitingForPermission)
                     {
                         if (Device.RuntimePlatform == Device.Android)
                         {
@@ -263,14 +262,14 @@ namespace EquipmentRental
             await DeleteItem(item);
         }
 
-        public async void OnApprove(object sender, EventArgs e)
-        {
-            var mi = ((MenuItem)sender);
-            var item = mi.CommandParameter as Equipment;
-            await DisplayDataSelection(item);
-        }
+        //public async void OnApprove(object sender, EventArgs e)
+        //{
+        //    var mi = ((MenuItem)sender);
+        //    var item = mi.CommandParameter as Equipment;
+        //    await DisplayDataSelection(item);
+        //}
 
-        public async void OnRent(object sender, EventArgs e)
+        public async void OnRentOrApprove(object sender, EventArgs e)
         {
             var mi = ((MenuItem)sender);
             var item = mi.CommandParameter as Equipment;

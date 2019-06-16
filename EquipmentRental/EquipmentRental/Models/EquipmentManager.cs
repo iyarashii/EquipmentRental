@@ -15,9 +15,7 @@ namespace EquipmentRental
         public static EquipmentManager DefaultManager { get; private set; } = new EquipmentManager();
         public MobileServiceClient CurrentClient { get; }
 
-        IMobileServiceTable<Equipment> equipmentTable;
-
-        const string offlineDbPath = @"localstore.db";
+        readonly IMobileServiceTable<Equipment> equipmentTable;
 
         private EquipmentManager()
         {

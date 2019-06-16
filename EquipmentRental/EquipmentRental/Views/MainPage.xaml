@@ -75,7 +75,7 @@
                         <ViewCell BindingContextChanged="OnBindingContextChanged">
                             <ViewCell.ContextActions>
                                 <MenuItem Clicked="OnDelete"  Text="Delete" CommandParameter="{Binding .}"/>
-                                <MenuItem Clicked="OnApprove" Text="Approve" CommandParameter="{Binding .}"/>
+                                <MenuItem Clicked="OnRentOrApprove" Text="Approve" CommandParameter="{Binding .}"/>
                                 <MenuItem Clicked="OnReturned" Text="Mark as returned" CommandParameter="{Binding .}"/>
                             </ViewCell.ContextActions>
                             <Grid BackgroundColor="{Binding IsWaitingForPermission, Converter={StaticResource IsWaitingToColor}}" >
