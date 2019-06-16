@@ -102,8 +102,8 @@ namespace EquipmentRental
             IEnumerable<User> currentUser;
             try
             {
-                currentUser = await userTable.Where(User => User.Username == username)
-                    .Where(User => User.Password == password).ToEnumerableAsync();
+                currentUser = await userTable.Where(User => User.Username == username && User.Password == password)
+                    .ToEnumerableAsync();
                 CurrentUser = currentUser.FirstOrDefault();
                 return currentUser.FirstOrDefault();
             }
