@@ -4,9 +4,10 @@ using System.Text;
 
 namespace EquipmentRental
 {
-    class Constants
+    // Utility class with constants
+    public static class Constants
     {
         // Azure Mobile App endpoint
-        public static string ApplicationURL = @"https://appntp.azurewebsites.net";
+        public const string ApplicationURL = @"https://appntp.azurewebsites.net";
     }
 }
