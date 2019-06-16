@@ -36,7 +36,7 @@ namespace EquipmentRental
                 else
                 {
                     items = await equipmentTable
-                    .Where(Equipment => !Equipment.IsRented && Equipment.Username == null || Equipment.Username == UserManager.CurrentUser.Username)
+                    .Where(Equipment => !Equipment.IsRented && Equipment.Username == null || Equipment.Username == UserManager.CurrentUser.Username && Equipment.Email == UserManager.CurrentUser.Email)
                     .ToEnumerableAsync();
                 }
                 return new ObservableCollection<Equipment>(items);
