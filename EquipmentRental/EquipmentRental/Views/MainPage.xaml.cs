@@ -65,9 +65,9 @@ namespace EquipmentRental
                 return;
 
             ViewCell theViewCell = ((ViewCell)sender);
-            var item = theViewCell.BindingContext as Equipment;
-
-            if (item != null)
+  
+            // pattern matching
+            if (theViewCell.BindingContext is Equipment item)
             {
                 if (!IsAdmin)
                 {
@@ -82,7 +82,7 @@ namespace EquipmentRental
                 }
                 else
                 {
-                    if(item.IsRented)
+                    if (item.IsRented)
                     {
                         theViewCell.ContextActions.RemoveAt(1); // remove Approve button
                     }
@@ -94,7 +94,7 @@ namespace EquipmentRental
                         menuDeny.Clicked += OnReturned;
                         theViewCell.ContextActions.Add(menuDeny);
                     }
-                    if(!item.IsRented && !item.IsWaitingForPermission)
+                    if (!item.IsRented && !item.IsWaitingForPermission)
                     {
                         theViewCell.ContextActions.RemoveAt(2); // remove Returned button
                     }
@@ -128,7 +128,6 @@ namespace EquipmentRental
         {
             base.OnAppearing();
 
-            // Set syncItems to true in order to synchronize the data on startup when running in offline mode
             await RefreshItems(true);
         }
         // Data methods
@@ -167,8 +166,8 @@ namespace EquipmentRental
         // Event handlers
         public async void OnSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            var item = e.SelectedItem as Equipment;
-            if (item != null)
+            // pattern matching
+            if (e.SelectedItem is Equipment item)
             {
                 BindingContext = null;
                 SettingDate = false;
@@ -187,7 +186,7 @@ namespace EquipmentRental
                         {
                             action = await DisplayActionSheet("Item " + item.ItemName + " options:", "Cancel", "Delete", "Mark as returned");
                         }
-                        else if(item.IsWaitingForPermission)
+                        else if (item.IsWaitingForPermission)
                         {
                             action = await DisplayActionSheet("Item " + item.ItemName + " options:", "Cancel", "Delete", "Approve", "Deny");
                         }
@@ -214,7 +213,7 @@ namespace EquipmentRental
                 }
                 else
                 {
-                    if(!item.IsRented && !item.IsWaitingForPermission)
+                    if (!item.IsRented && !item.IsWaitingForPermission)
                     {
                         if (Device.RuntimePlatform == Device.Android)
                         {
@@ -236,7 +235,7 @@ namespace EquipmentRental
                         }
                     }
                 }
-                
+
             }
 
             // prevents background getting highlighted
