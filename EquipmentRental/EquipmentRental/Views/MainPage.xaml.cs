@@ -129,37 +129,37 @@ namespace EquipmentRental
             base.OnAppearing();
 
             // Set syncItems to true in order to synchronize the data on startup when running in offline mode
-            await RefreshItems(true, syncItems: true);
+            await RefreshItems(true);
         }
         // Data methods
         async Task ApproveItemRental(Equipment item)
         {
-            await manager.ApproveRentalAsync(item);
-            equipmentList.ItemsSource = await manager.GetItemsAsync();
+            await manager.ApproveRentalAsync(item, this);
+            equipmentList.ItemsSource = await manager.GetTableAsync(this);
         }
 
         async Task DeleteItem(Equipment item)
         {
-            await manager.DeleteItemAsync(item);
-            equipmentList.ItemsSource = await manager.GetItemsAsync();
+            await manager.DeleteTableItemAsync(item, this);
+            equipmentList.ItemsSource = await manager.GetTableAsync(this);
         }
 
         async Task AddItem(Equipment item)
         {
-            await manager.SaveItemAsync(item);
-            equipmentList.ItemsSource = await manager.GetItemsAsync();
+            await manager.SaveTableItemAsync(item, this);
+            equipmentList.ItemsSource = await manager.GetTableAsync(this);
         }
 
         async Task AskToRentItem(Equipment item)
         {
             await manager.AskToRentAsync(item, this);
-            equipmentList.ItemsSource = await manager.GetItemsAsync();
+            equipmentList.ItemsSource = await manager.GetTableAsync(this);
         }
 
         async Task MarkItemAsReturned(Equipment item)
         {
             await manager.MarkItemAsReturnedAsync(item, this);
-            equipmentList.ItemsSource = await manager.GetItemsAsync();
+            equipmentList.ItemsSource = await manager.GetTableAsync(this);
         }
 
 
@@ -321,8 +321,6 @@ namespace EquipmentRental
                 BindingContext = this;
                 await DisplayAlert("To rent item " + item.ItemName + ":", "Select start and end date of rental period and click accept to send rent request.", "OK");
             }
-            Debug.WriteLine(endDate.Date);
-            Debug.WriteLine(startDate.Date);
         }
 
         // http://developer.xamarin.com/guides/cross-platform/xamarin-forms/working-with/listview/#pulltorefresh
@@ -332,7 +330,7 @@ namespace EquipmentRental
             Exception error = null;
             try
             {
-                await RefreshItems(false, true);
+                await RefreshItems(false);
             }
             catch (Exception ex)
             {
@@ -352,14 +350,14 @@ namespace EquipmentRental
 
         public async void OnRefreshItems(object sender, EventArgs e)
         {
-            await RefreshItems(true, false);
+            await RefreshItems(true);
         }
 
-        private async Task RefreshItems(bool showActivityIndicator, bool syncItems)
+        private async Task RefreshItems(bool showActivityIndicator)
         {
             using (var scope = new ActivityIndicatorScope(syncIndicator, showActivityIndicator))
             {
-                equipmentList.ItemsSource = await manager.GetItemsAsync(syncItems);
+                equipmentList.ItemsSource = await manager.GetTableAsync(this);
             }
         }
     }

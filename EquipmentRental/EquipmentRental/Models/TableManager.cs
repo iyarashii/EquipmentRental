@@ -14,19 +14,25 @@ namespace EquipmentRental
         //public static TableManager<T> DefaultManager { get; private set; } = new TableManager<T>();
         public MobileServiceClient CurrentClient { get; }
         protected readonly IMobileServiceTable<T> table;
-
+        protected IEnumerable<T> tableItems;
         protected TableManager()
         {
             CurrentClient = new MobileServiceClient(Constants.ApplicationURL);
             table = CurrentClient.GetTable<T>();
         }
+
+
+        public virtual async Task TableToEnumerableAsync()
+        {
+            tableItems = await table.ToEnumerableAsync();
+        }
+
+
         public async Task<ObservableCollection<T>> GetTableAsync(Page currentPage)
         {
             try
             {
-                IEnumerable<T> tableItems = await table
-                    .ToEnumerableAsync();
-
+                await TableToEnumerableAsync();
                 return new ObservableCollection<T>(tableItems);
             }
             catch (MobileServiceInvalidOperationException msioe)
@@ -39,6 +45,8 @@ namespace EquipmentRental
             }
             return null;
         }
+
+
         public async Task DeleteTableItemAsync(T tableItem, Page currentPage)
         {
             try
@@ -50,6 +58,8 @@ namespace EquipmentRental
                 await currentPage.DisplayAlert("Delete error: ", e.Message, "OK");
             }
         }
+
+
         public async Task SaveTableItemAsync(T tableItem, Page currentPage)
         {
             try

@@ -10,99 +10,117 @@ using Xamarin.Forms;
 
 namespace EquipmentRental
 {
-    public partial class EquipmentManager
+    public partial class EquipmentManager : TableManager<Equipment>
     {
         public static EquipmentManager DefaultManager { get; private set; } = new EquipmentManager();
-        public MobileServiceClient CurrentClient { get; }
+        //public MobileServiceClient CurrentClient { get; }
 
-        readonly IMobileServiceTable<Equipment> equipmentTable;
+        //readonly IMobileServiceTable<Equipment> equipmentTable;
 
-        private EquipmentManager()
+        private EquipmentManager() : base()
         {
-            CurrentClient = new MobileServiceClient(Constants.ApplicationURL);
-            equipmentTable = CurrentClient.GetTable<Equipment>();
+            //CurrentClient = new MobileServiceClient(Constants.ApplicationURL);
+            //equipmentTable = CurrentClient.GetTable<Equipment>();
         }
-
-        public async Task<ObservableCollection<Equipment>> GetItemsAsync(bool syncUsers = false)
+        public override async Task TableToEnumerableAsync()
         {
-            try
+            if (!App.IsLoggedInUserAnAdmin)
             {
-                IEnumerable<Equipment> items;
-                if (App.IsLoggedInUserAnAdmin)
-                {
-                    items = await equipmentTable
-                    .ToEnumerableAsync();
-                }
-                else
-                {
-                    items = await equipmentTable
-                    .Where(Equipment => !Equipment.IsRented && Equipment.Username == null || Equipment.Username == UserManager.CurrentUser.Username && Equipment.Email == UserManager.CurrentUser.Email)
-                    .ToEnumerableAsync();
-                }
-                return new ObservableCollection<Equipment>(items);
+                tableItems = await table
+                   .Where(Equipment => !Equipment.IsRented && Equipment.Username == null ||
+                   Equipment.Username == UserManager.CurrentUser.Username &&
+                   Equipment.Email == UserManager.CurrentUser.Email)
+                   .ToEnumerableAsync();
             }
-            catch (MobileServiceInvalidOperationException msioe)
+            else
             {
-                Debug.WriteLine("Invalid sync operation: {0}", new[] { msioe.Message });
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine("Sync error: {0}", new[] { e.Message });
-            }
-            return null;
-        }
-        public async Task SaveItemAsync(Equipment item)
-        {
-            try
-            {
-                 await equipmentTable.InsertAsync(item);
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine("Save error: {0}", new[] { e.Message });
+                await base.TableToEnumerableAsync();
             }
         }
 
-        public async Task DeleteItemAsync(Equipment item)
-        {
-            try
-            {
-                await equipmentTable.DeleteAsync(item);
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine("Delete error: {0}", new[] { e.Message });
-            }
-        }
+            
+        //public async Task<ObservableCollection<Equipment>> GetItemsAsync(bool syncUsers = false)
+        //{
+        //    try
+        //    {
+        //        IEnumerable<Equipment> items;
+        //        if (App.IsLoggedInUserAnAdmin)
+        //        {
+        //            items = await equipmentTable
+        //            .ToEnumerableAsync();
+        //        }
+        //        else
+        //        {
+        //            items = await equipmentTable
+        //            .Where(Equipment => !Equipment.IsRented && Equipment.Username == null || Equipment.Username == UserManager.CurrentUser.Username && Equipment.Email == UserManager.CurrentUser.Email)
+        //            .ToEnumerableAsync();
+        //        }
+        //        return new ObservableCollection<Equipment>(items);
+        //    }
+        //    catch (MobileServiceInvalidOperationException msioe)
+        //    {
+        //        Debug.WriteLine("Invalid sync operation: {0}", new[] { msioe.Message });
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Debug.WriteLine("Sync error: {0}", new[] { e.Message });
+        //    }
+        //    return null;
+        //}
+        //public async Task SaveItemAsync(Equipment item)
+        //{
+        //    try
+        //    {
+        //         await equipmentTable.InsertAsync(item);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Debug.WriteLine("Save error: {0}", new[] { e.Message });
+        //    }
+        //}
 
-        public async Task ApproveRentalAsync(Equipment item)
+        //public async Task DeleteItemAsync(Equipment item)
+        //{
+        //    try
+        //    {
+        //        await equipmentTable.DeleteAsync(item);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Debug.WriteLine("Delete error: {0}", new[] { e.Message });
+        //    }
+        //}
+
+        public async Task ApproveRentalAsync(Equipment item, Page currentPage)
         {
             item.IsWaitingForPermission = false;
             item.IsRented = true;
-            try
-            {
-                await equipmentTable.UpdateAsync(item);
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine("Update error: {0}", new[] { e.Message });
-            }
+            await UpdateTableItemAsync(item, currentPage);
+            //try
+            //{
+            //    await equipmentTable.UpdateAsync(item);
+            //}
+            //catch (Exception e)
+            //{
+            //    Debug.WriteLine("Update error: {0}", new[] { e.Message });
+            //}
         }
 
-        public async Task AskToRentAsync(Equipment item, Page page)
+        public async Task AskToRentAsync(Equipment item, Page currentPage)
         {
             item.IsWaitingForPermission = true;
-            try
-            {
-                await equipmentTable.UpdateAsync(item);
-            }
-            catch (Exception e)
-            {
-                await page.DisplayAlert("Update error:", e.Message, "OK");
-            }
+            await UpdateTableItemAsync(item, currentPage);
+            //try
+            //{
+            //    await equipmentTable.UpdateAsync(item);
+            //}
+            //catch (Exception e)
+            //{
+            //    await page.DisplayAlert("Update error:", e.Message, "OK");
+            //}
         }
 
-        public async Task MarkItemAsReturnedAsync(Equipment item, Page page)
+        public async Task MarkItemAsReturnedAsync(Equipment item, Page currentPage)
         {
             item.IsWaitingForPermission = false;
             item.IsRented = false;
@@ -110,14 +128,15 @@ namespace EquipmentRental
             item.Email = null;
             item.StartDate = null;
             item.EndDate = null;
-            try
-            {
-                await equipmentTable.UpdateAsync(item);
-            }
-            catch (Exception e)
-            {
-                await page.DisplayAlert("Update error:", e.Message, "OK");
-            }
+            await UpdateTableItemAsync(item, currentPage);
+            //try
+            //{
+            //    await equipmentTable.UpdateAsync(item);
+            //}
+            //catch (Exception e)
+            //{
+            //    await page.DisplayAlert("Update error:", e.Message, "OK");
+            //}
         }
 
     }
