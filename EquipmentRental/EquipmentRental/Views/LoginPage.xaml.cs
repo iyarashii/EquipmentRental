@@ -87,7 +87,7 @@ namespace EquipmentRental
             using (var scope = new ActivityIndicatorScope(syncIndicator, showActivityIndicator))
             {
                 // query database to check if typed in credentials are a part of user database
-                TypedUser = await manager.FindUserAsync(user.Username, user.Password);
+                TypedUser = await manager.FindUserAsync(user.Username, user.Password, this);
                 if (TypedUser == null)
                 {
                     return false;

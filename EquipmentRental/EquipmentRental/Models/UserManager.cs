@@ -10,21 +10,27 @@ using Xamarin.Forms;
 
 namespace EquipmentRental
 {
+    // class derived from TableManager with generic type parameter - User
     public partial class UserManager : TableManager<User>
     {
+        // static property used for creating new object of type UserManager
         public static UserManager DefaultManager { get; private set; } = new UserManager();
 
+        // property used for storing current user data
         public static User CurrentUser { get; set;}
         
+        // constructor which derives from TableManager constructor
         private UserManager() : base()
         {
 
         }
 
+        // method used for saving user data to table
         public async Task<bool> SaveUserAsync(User user, Page currentPage)
         {
             IEnumerable<User> checkIfUsernameTaken;
             IEnumerable<User> checkIfEmailTaken;
+            // query table to check if username and email are already a part of database
             checkIfUsernameTaken = await table.Where(User => User.Username == user.Username).ToEnumerableAsync();
             checkIfEmailTaken = await table.Where(User => User.Email == user.Email).ToEnumerableAsync();
             if (checkIfUsernameTaken.FirstOrDefault() != null || checkIfEmailTaken.FirstOrDefault() != null)
@@ -33,23 +39,27 @@ namespace EquipmentRental
             }
             else
             {
+                // save data to table if user's username and email are not a part of database
                 await SaveTableItemAsync(user, currentPage);
                 return true;
             }
 
         }
 
+        // method used for approving users in the database
         public async Task ApproveUserAsync(User user, Page currentPage)
         {
             user.IsConfirmed = true;
             await UpdateTableItemAsync(user, currentPage);
         }
 
-        public async Task<User> FindUserAsync(string username, string password)
+        // method used to search for the user with specific name and password that are passed as parameters
+        public async Task<User> FindUserAsync(string username, string password, Page currentPage)
         {
             IEnumerable<User> currentUser;
             try
             {
+                // query used for checking if passed login credentials are a part of database table
                 currentUser = await table.Where(User => User.Username == username && User.Password == password)
                     .ToEnumerableAsync();
                 CurrentUser = currentUser.FirstOrDefault();
@@ -57,7 +67,7 @@ namespace EquipmentRental
             }
             catch (Exception e)
             {
-                Debug.WriteLine("Query error: {0}", new[] { e.Message });
+                await currentPage.DisplayAlert("Query error: ", e.Message, "OK");
                 return null;
             }
         }
