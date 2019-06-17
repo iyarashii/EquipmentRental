@@ -23,15 +23,15 @@ namespace EquipmentRental
         {
             InitializeComponent();
 
+
             IsAdmin = App.IsLoggedInUserAnAdmin;
-            
             MinStartDate = DateTime.Now.Date;
             MinEndDate = DateTime.Now.Date.AddDays(1);
             endDate.Date = MinEndDate;
             startDate.Date = MinStartDate;
 
-
             SettingDate = false;
+
             if (IsAdmin)
             {
                 buttonsGrid.HorizontalOptions = LayoutOptions.End;
@@ -56,6 +56,36 @@ namespace EquipmentRental
             }
         }
 
+        private void OnBindingContextChangedAdminActions(ViewCell eventSendingViewCell, Equipment viewCellsItem)
+        {
+            if (viewCellsItem.IsRented)
+            {
+                eventSendingViewCell.ContextActions.RemoveAt(1); // remove Approve button
+            }
+            if (viewCellsItem.IsWaitingForPermission)
+            {
+                eventSendingViewCell.ContextActions.RemoveAt(2); // remove Returned button
+                var menuDeny = new MenuItem { Text = "Deny" };
+                menuDeny.SetBinding(MenuItem.CommandParameterProperty, new Binding("."));
+                menuDeny.Clicked += OnReturned;
+                eventSendingViewCell.ContextActions.Add(menuDeny);
+            }
+            if (!viewCellsItem.IsRented && !viewCellsItem.IsWaitingForPermission)
+            {
+                eventSendingViewCell.ContextActions.RemoveAt(2); // remove Returned button
+            }
+        }
+        private void OnBindingContextChangedUserActions(ViewCell eventSendingViewCell, Equipment viewCellsItem)
+        {
+            eventSendingViewCell.ContextActions.Clear();
+            if (!viewCellsItem.IsWaitingForPermission && !viewCellsItem.IsRented)
+            {
+                var menuRent = new MenuItem { Text = "Rent" };
+                menuRent.SetBinding(MenuItem.CommandParameterProperty, new Binding("."));
+                menuRent.Clicked += OnRentOrApprove;
+                eventSendingViewCell.ContextActions.Add(menuRent);
+            }
+        }
 
         private void OnBindingContextChanged(object sender, EventArgs e)
         {
@@ -71,56 +101,12 @@ namespace EquipmentRental
             {
                 if (!IsAdmin)
                 {
-                    theViewCell.ContextActions.Clear();
-                    if (!item.IsWaitingForPermission && !item.IsRented)
-                    {
-                        var menuRent = new MenuItem { Text = "Rent" };
-                        menuRent.SetBinding(MenuItem.CommandParameterProperty, new Binding("."));
-                        menuRent.Clicked += OnRentOrApprove;
-                        theViewCell.ContextActions.Add(menuRent);
-                    }
+                    OnBindingContextChangedUserActions(theViewCell, item);
                 }
                 else
                 {
-                    if (item.IsRented)
-                    {
-                        theViewCell.ContextActions.RemoveAt(1); // remove Approve button
-                    }
-                    if (item.IsWaitingForPermission)
-                    {
-                        theViewCell.ContextActions.RemoveAt(2); // remove Returned button
-                        var menuDeny = new MenuItem { Text = "Deny" };
-                        menuDeny.SetBinding(MenuItem.CommandParameterProperty, new Binding("."));
-                        menuDeny.Clicked += OnReturned;
-                        theViewCell.ContextActions.Add(menuDeny);
-                    }
-                    if (!item.IsRented && !item.IsWaitingForPermission)
-                    {
-                        theViewCell.ContextActions.RemoveAt(2); // remove Returned button
-                    }
+                    OnBindingContextChangedAdminActions(theViewCell, item);
                 }
-            }
-        }
-
-
-        async void OnLogoutButtonClicked(object sender, EventArgs e)
-        {
-            App.IsUserLoggedIn = false;
-            App.IsLoggedInUserAnAdmin = false;
-            Navigation.InsertPageBefore(new LoginPage(), this);
-            await Navigation.PopAsync();
-        }
-
-        async void OnUsersButtonClicked(object sender, EventArgs e)
-        {
-            if (IsAdmin)
-            {
-                await Navigation.PushAsync(new UserList());
-
-            }
-            else
-            {
-                await DisplayAlert("Access Denied", "Admin rights required.", "OK");
             }
         }
 
@@ -164,80 +150,95 @@ namespace EquipmentRental
 
 
         // Event handlers
+        async void OnLogoutButtonClicked(object sender, EventArgs e)
+        {
+            App.IsUserLoggedIn = false;
+            App.IsLoggedInUserAnAdmin = false;
+            Navigation.InsertPageBefore(new LoginPage(), this);
+            await Navigation.PopAsync();
+        }
+
+        async void OnUsersButtonClicked(object sender, EventArgs e)
+        {
+            await Navigation.PushAsync(new UserList());
+        }
+
+        public async Task<string> DisplayAdminActionSheet(Equipment selectedItem)
+        {
+            if (selectedItem.IsRented)
+            {
+                return await DisplayActionSheet(selectedItem.ItemName + " options:", "Cancel", "Delete", "Mark as returned");
+            }
+            else if (selectedItem.IsWaitingForPermission)
+            {
+                return await DisplayActionSheet(selectedItem.ItemName + " options:", "Cancel", "Delete", "Approve", "Deny");
+            }
+            else
+            {
+                return await DisplayActionSheet(selectedItem.ItemName + " options:", "Cancel", "Delete", "Approve");
+            }
+        }
+
+        public async Task<string> OnSelectedAdminActions(Equipment selectedItem)
+        {
+            if (Device.RuntimePlatform == Device.Android)
+            {
+                await DisplayAlert(selectedItem.ItemName, "Press-and-hold to see item managment options.", "Got it!");
+                return "";
+            }
+            return await DisplayAdminActionSheet(selectedItem);
+        }
+
+        public async Task<string> OnSelectedUserActions(Equipment selectedItem)
+        {
+            if (!selectedItem.IsRented && !selectedItem.IsWaitingForPermission)
+            {
+                if (Device.RuntimePlatform == Device.Android)
+                {
+                    await DisplayAlert(selectedItem.ItemName, "Press-and-hold to ask for permission to rent " + selectedItem.ItemName + ".", "Got it!");
+                    return "";
+                }
+                return await DisplayActionSheet("Item " + selectedItem.ItemName + " options:", "Cancel", null, "Rent");
+            }
+            return "";
+        }
+
         public async void OnSelected(object sender, SelectedItemChangedEventArgs e)
         {
             // pattern matching
             if (e.SelectedItem is Equipment item)
             {
+                string action = "";
                 BindingContext = null;
                 SettingDate = false;
                 BindingContext = this;
                 if (IsAdmin)
                 {
-                    if (Device.RuntimePlatform == Device.Android)
-                    {
-                        await DisplayAlert("Item " + item.ItemName, "Press-and-hold to see item managment options", "Got it!");
-                    }
-                    else
-                    {
-                        string action;
-                        // Windows, not all platforms support the Context Actions yet
-                        if (item.IsRented)
-                        {
-                            action = await DisplayActionSheet("Item " + item.ItemName + " options:", "Cancel", "Delete", "Mark as returned");
-                        }
-                        else if (item.IsWaitingForPermission)
-                        {
-                            action = await DisplayActionSheet("Item " + item.ItemName + " options:", "Cancel", "Delete", "Approve", "Deny");
-                        }
-                        else
-                        {
-                            action = await DisplayActionSheet("Item " + item.ItemName + " options:", "Cancel", "Delete", "Approve");
-                        }
-                        switch (action)
-                        {
-                            case "Cancel":
-                                break;
-                            case "Delete":
-                                await DeleteItem(item);
-                                break;
-                            case "Approve":
-                                await DisplayDataSelection(item);
-                                break;
-                            case "Mark as returned":
-                            case "Deny":
-                                await MarkItemAsReturned(item);
-                                break;
-                        }
-                    }
+                    action = await OnSelectedAdminActions(item);
                 }
                 else
                 {
-                    if (!item.IsRented && !item.IsWaitingForPermission)
-                    {
-                        if (Device.RuntimePlatform == Device.Android)
-                        {
-                            await DisplayAlert("Item " + item.ItemName, "Press-and-hold to ask for permission to rent " + item.ItemName, "Got it!");
-                        }
-                        else
-                        {
-                            // Windows, not all platforms support the Context Actions yet
-                            string action = await DisplayActionSheet("Item " + item.ItemName + " options:", "Cancel", null, "Rent");
-                            switch (action)
-                            {
-                                case "Cancel":
-                                    break;
-                                case "Rent":
-                                    await DisplayDataSelection(item);
-                                    BindingContext = this;
-                                    break;
-                            }
-                        }
-                    }
+                    action = await OnSelectedUserActions(item);
                 }
-
+                switch (action)
+                {
+                    case "Cancel":
+                        break;
+                    case "Delete":
+                        await DeleteItem(item);
+                        break;
+                    case "Approve":
+                    case "Rent":
+                        await DisplayDataSelection(item);
+                        break;
+                    case "Mark as returned":
+                    case "Deny":
+                        await MarkItemAsReturned(item);
+                        break;
+                    default:
+                        break;
+                }
             }
-
             // prevents background getting highlighted
             equipmentList.SelectedItem = null;
         }
