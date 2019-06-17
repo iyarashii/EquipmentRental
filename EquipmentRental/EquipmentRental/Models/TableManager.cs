@@ -11,7 +11,6 @@ namespace EquipmentRental
 {
     public partial class TableManager<T>
     {
-        //public static TableManager<T> DefaultManager { get; private set; } = new TableManager<T>();
         public MobileServiceClient CurrentClient { get; }
         protected readonly IMobileServiceTable<T> table;
         protected IEnumerable<T> tableItems;
