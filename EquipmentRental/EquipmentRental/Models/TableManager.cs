@@ -9,7 +9,7 @@ using Xamarin.Forms;
 
 namespace EquipmentRental
 {
-    public partial class TableManager<T>
+    public abstract partial class TableManager<T>
     {
         public MobileServiceClient CurrentClient { get; }
         protected readonly IMobileServiceTable<T> table;
