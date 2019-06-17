@@ -43,19 +43,19 @@ namespace EquipmentRental
             base.OnAppearing();
 
             // Set syncItems to true in order to synchronize the data on startup when running in offline mode
-            await RefreshItems(true, syncItems: true);
+            await RefreshItems(true);
         }
         // Data methods
         async Task ApproveUser(User user)
         {
-            await manager.ApproveUserAsync(user);
-            userList.ItemsSource = await manager.GetUsersAsync();
+            await manager.ApproveUserAsync(user, this);
+            userList.ItemsSource = await manager.GetTableAsync(this);
         }
 
         async Task DeleteUser(User user)
         {
-            await manager.DeleteUserAsync(user);
-            userList.ItemsSource = await manager.GetUsersAsync();
+            await manager.DeleteTableItemAsync(user, this);
+            userList.ItemsSource = await manager.GetTableAsync(this);
         }
 
         // Event handlers
@@ -112,7 +112,7 @@ namespace EquipmentRental
             Exception error = null;
             try
             {
-                await RefreshItems(false, true);
+                await RefreshItems(false);
             }
             catch (Exception ex)
             {
@@ -132,14 +132,14 @@ namespace EquipmentRental
 
         public async void OnRefreshItems(object sender, EventArgs e)
         {
-            await RefreshItems(true, false);
+            await RefreshItems(true);
         }
 
-        private async Task RefreshItems(bool showActivityIndicator, bool syncItems)
+        private async Task RefreshItems(bool showActivityIndicator)
         {
             using (var scope = new ActivityIndicatorScope(syncIndicator, showActivityIndicator))
             {
-                userList.ItemsSource = await manager.GetUsersAsync(syncItems);
+                userList.ItemsSource = await manager.GetTableAsync(this);
             }
         }
     }

@@ -38,7 +38,7 @@ namespace EquipmentRental
             };
             
             // save user table from database to local variable as observable collection
-            var checkIfUsersDatabaseIsEmpty =  await manager.GetUsersAsync();
+            var checkIfUsersDatabaseIsEmpty =  await manager.GetTableAsync(this);
             // if saved table is empty
             if (checkIfUsersDatabaseIsEmpty.Count == 0)
             {
@@ -92,7 +92,7 @@ namespace EquipmentRental
              if(!string.IsNullOrWhiteSpace(user.Username) && !string.IsNullOrWhiteSpace(user.Password) && !string.IsNullOrWhiteSpace(user.Email) && user.Email.Contains("@"))
              {
                 // return true if saving typed in user details to database succeeded
-                return await manager.SaveUserAsync(user);
+                return await manager.SaveUserAsync(user, this);
              }
              return false;
           }

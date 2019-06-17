@@ -6,95 +6,43 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.WindowsAzure.MobileServices;
+using Xamarin.Forms;
 
 namespace EquipmentRental
 {
-    public partial class UserManager
+    public partial class UserManager : TableManager<User>
     {
         public static UserManager DefaultManager { get; private set; } = new UserManager();
-        public MobileServiceClient CurrentClient { get; }
 
         public static User CurrentUser { get; set;}
-
-        readonly IMobileServiceTable<User> userTable;
-
-        private UserManager()
+        
+        private UserManager() : base()
         {
-            CurrentClient = new MobileServiceClient(Constants.ApplicationURL);
-            userTable = CurrentClient.GetTable<User>();
+
         }
 
-        public async Task<ObservableCollection<User>> GetUsersAsync(bool syncUsers = false)
-        {
-            try
-            {
-                IEnumerable<User> users = await userTable
-                    .ToEnumerableAsync();
-
-                return new ObservableCollection<User>(users);
-            }
-            catch (MobileServiceInvalidOperationException msioe)
-            {
-                Debug.WriteLine("Invalid sync operation: {0}", new[] { msioe.Message });
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine("Sync error: {0}", new[] { e.Message });
-            }
-            return null;
-        }
-
-        public async Task<bool> SaveUserAsync(User user)
+        public async Task<bool> SaveUserAsync(User user, Page currentPage)
         {
             IEnumerable<User> checkIfUsernameTaken;
             IEnumerable<User> checkIfEmailTaken;
-            try
+            checkIfUsernameTaken = await table.Where(User => User.Username == user.Username).ToEnumerableAsync();
+            checkIfEmailTaken = await table.Where(User => User.Email == user.Email).ToEnumerableAsync();
+            if (checkIfUsernameTaken.FirstOrDefault() != null || checkIfEmailTaken.FirstOrDefault() != null)
             {
-                checkIfUsernameTaken = await userTable.Where(User => User.Username == user.Username).ToEnumerableAsync();
-                checkIfEmailTaken = await userTable.Where(User => User.Email == user.Email).ToEnumerableAsync();
-                if(checkIfUsernameTaken.FirstOrDefault() != null || checkIfEmailTaken.FirstOrDefault() != null)
-                {
-                    return false;
-                }
-                if (user.Id == null)
-                {
-                    await userTable.InsertAsync(user);
-                }
-                else
-                {
-                    await userTable.UpdateAsync(user);
-                }
-                return true;
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine("Save error: {0}", new[] { e.Message });
                 return false;
             }
-        }
-        public async Task DeleteUserAsync(User user)
-        {
-            try
+            else
             {
-                await userTable.DeleteAsync(user);
+                await SaveTableItemAsync(user, currentPage);
+                return true;
             }
-            catch (Exception e)
-            {
-                Debug.WriteLine("Delete error: {0}", new[] { e.Message });
-            }
+
         }
 
-        public async Task ApproveUserAsync(User user)
+        public async Task ApproveUserAsync(User user, Page currentPage)
         {
             user.IsConfirmed = true;
-            try
-            {
-                await userTable.UpdateAsync(user);
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine("Update error: {0}", new[] { e.Message });
-            }
+            await UpdateTableItemAsync(user, currentPage);
         }
 
         public async Task<User> FindUserAsync(string username, string password)
@@ -102,7 +50,7 @@ namespace EquipmentRental
             IEnumerable<User> currentUser;
             try
             {
-                currentUser = await userTable.Where(User => User.Username == username && User.Password == password)
+                currentUser = await table.Where(User => User.Username == username && User.Password == password)
                     .ToEnumerableAsync();
                 CurrentUser = currentUser.FirstOrDefault();
                 return currentUser.FirstOrDefault();
