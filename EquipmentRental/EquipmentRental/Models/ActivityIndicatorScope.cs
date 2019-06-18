@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Xamarin.Forms;
 
-namespace EquipmentRental
+namespace EquipmentRental.Models
 {
     // class containing logic for ActivityIndicator
     public sealed class ActivityIndicatorScope : IDisposable

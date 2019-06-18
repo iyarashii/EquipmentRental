@@ -4,7 +4,7 @@ using System.Text;
 using Microsoft.WindowsAzure.MobileServices;
 using Newtonsoft.Json;
 
-namespace EquipmentRental
+namespace EquipmentRental.Models.DTOs
 {
     // Data transfer object for Equipment table in azure database
     public class Equipment

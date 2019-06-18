@@ -5,8 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
+using EquipmentRental.Models;
+using EquipmentRental.Models.DTOs;
 
-namespace EquipmentRental
+namespace EquipmentRental.Views
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class UserList : ContentPage

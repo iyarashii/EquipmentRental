@@ -7,8 +7,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.WindowsAzure.MobileServices;
 using Xamarin.Forms;
+using EquipmentRental.Models.DTOs;
 
-namespace EquipmentRental
+namespace EquipmentRental.Models
 {
     // class derived from TableManager with generic type parameter - User
     public partial class UserManager : TableManager<User>

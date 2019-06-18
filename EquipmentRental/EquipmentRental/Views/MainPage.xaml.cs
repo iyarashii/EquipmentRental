@@ -6,8 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
+using EquipmentRental.Models;
+using EquipmentRental.Models.DTOs;
 
-namespace EquipmentRental
+namespace EquipmentRental.Views
 {
     public partial class MainPage : ContentPage
     {
@@ -193,7 +195,7 @@ namespace EquipmentRental
         // event handler for Add button
         public async void OnAdd(object sender, EventArgs e)
         {
-            var item = new Equipment { ItemName = newItemName.Text, Email = "", Username = "" };
+            var item = new Equipment { ItemName = newItemName.Text, Email = null, Username = null };
             await AddItem(item);
             newItemName.Text = string.Empty;
             newItemName.Unfocus();

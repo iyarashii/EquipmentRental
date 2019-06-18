@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.WindowsAzure.MobileServices;
 using Xamarin.Forms;
 
-namespace EquipmentRental
+namespace EquipmentRental.Models
 {
     // abstract base model manager class meant to be used as a template for other table managers
     // T is DTO class used for specific table

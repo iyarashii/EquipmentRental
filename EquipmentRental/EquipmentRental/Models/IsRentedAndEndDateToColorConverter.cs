@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Text;
 using Xamarin.Forms;
 
-namespace EquipmentRental
+namespace EquipmentRental.Models
 {
     // custom value converter used to convert boolean values into Color objects
     // this class is used to change background color of the grid in listview viewcells
