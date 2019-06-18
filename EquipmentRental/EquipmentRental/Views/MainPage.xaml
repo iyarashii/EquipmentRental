@@ -5,11 +5,13 @@
              x:Class="EquipmentRental.MainPage"
              Title="Equipment Database">
     <ContentPage.ToolbarItems>
+        <!-- toolbar buttons used for logout and to open User table page -->
         <ToolbarItem Text="Logout" Order="Secondary" Clicked="OnLogoutButtonClicked" />
         <ToolbarItem x:Name="usersButton" Order="Secondary"  Text="Users" Clicked="OnUsersButtonClicked" />
     </ContentPage.ToolbarItems>
     <ContentPage.Resources>
         <ResourceDictionary>
+            <!-- boolean to color converters added as static resouces -->
             <local:IsWaitingForPermissionToColorConverter x:Key="IsWaitingToColor"/>
             <local:IsRentedAndEndDateToColorConverter x:Key="IsReturnedOnTime"/>
         </ResourceDictionary>
@@ -20,6 +22,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
+            <!-- activity indicator used for displaying database loading animation -->
             <ActivityIndicator Grid.RowSpan="2"
                        HorizontalOptions="Center"
                        VerticalOptions="Center"
@@ -28,6 +31,7 @@
                        x:Name="syncIndicator"/>
             <StackLayout Grid.Row="0" BackgroundColor="#5ABAFF">
                 <StackLayout Orientation="Horizontal">
+                    <!--"add item" label and entry that are hidden if logged in user is not an administrator-->
                     <Label Text="Add item:" IsVisible="{Binding IsAdmin}" HorizontalOptions="Start"/>
                     <Entry x:Name="newItemName" IsVisible="{Binding IsAdmin}"
                                 Placeholder="Item name" HorizontalOptions="FillAndExpand"/>
@@ -36,22 +40,27 @@
                             <ColumnDefinition/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
+                        <!--buttons panel layout to which some buttons are added from the code behind file-->
                         <StackLayout x:Name="buttonsPanel" Grid.Column="1" Orientation="Horizontal">
+                            <!--add item button which is only visible for admin-->
                             <Button x:Name="addButton" IsVisible="{Binding IsAdmin}" Text="+" MinimumHeightRequest="30" Clicked="OnAdd" />
                         </StackLayout>
                     </Grid>
                 </StackLayout>
+                <!--date layout that is displayed during renting or rental approving 
+                it contains datapickers to select end and start retnal period dates--> 
                 <StackLayout x:Name="dateLayout" IsVisible="{Binding SettingDate}" Orientation="Horizontal">
                     <Grid  HorizontalOptions="FillAndExpand">
                         <DatePicker  x:Name="startDate" MinimumDate="{Binding MinStartDate}" Grid.Row="0" Grid.Column="0" />
                         <DatePicker x:Name="endDate"  MinimumDate="{Binding MinEndDate}" Grid.Row="0" Grid.Column="1" />
+                        <!--entries for username and email input during date selection, only visible for admin-->
                         <Entry IsVisible="{Binding IsAdmin}" x:Name="usernameEntry" Placeholder="username" Grid.Row="1" Grid.Column="0"/>
                         <Entry IsVisible="{Binding IsAdmin}" x:Name="emailEntry" Placeholder="email" Grid.Row="1" Grid.Column="1"/>
                     </Grid>
                     <Button x:Name="acceptDateButton" Text="Accept" Grid.RowSpan="2" HorizontalOptions="End" Clicked="OnAccept"/>
                 </StackLayout>
             </StackLayout>
-
+            <!--list view used for displaying Equipment table items in a form  of grids with 7 columns-->
             <ListView x:Name="equipmentList"
 				ItemSelected="OnSelected"
                 SeparatorVisibility="Default"
@@ -74,20 +83,31 @@
                 </ListView.Header>
                 <ListView.ItemTemplate>
                     <DataTemplate>
+                        <!--view cell layout, with bindingcontextchanged eventhandler set to modified event-->
                         <ViewCell BindingContextChanged="OnBindingContextChanged">
                             <ViewCell.ContextActions>
+                                <!--view cell context actions menu buttons, 
+                                on UWP you can see them after right clicking an item
+                                in the item list, on android after a press-and-hold-->
                                 <MenuItem Clicked="OnDelete"  Text="Delete" CommandParameter="{Binding .}"/>
                                 <MenuItem Clicked="OnRentOrApprove" Text="Approve" CommandParameter="{Binding .}"/>
                                 <MenuItem Clicked="OnReturned" Text="Mark as returned" CommandParameter="{Binding .}"/>
                             </ViewCell.ContextActions>
+                            <!--viewcells grid with yellow or default background color 
+                            depending on the state of IsWaitingForPermission binding-->
                             <Grid BackgroundColor="{Binding IsWaitingForPermission, Converter={StaticResource IsWaitingToColor}}" >
+                                <!--hidden label used only as a reference for 2nd binding passed to the IsReturnedOnTime converter-->
                                 <Label x:Name="endDateLabel"  Text="{Binding EndDate, StringFormat='{0:D}'}" IsVisible="False"/>
+                                <!--2nd grid that changes viewcell background color to red(rented not returned on time),
+                                green(rented and still before the agreed return time) or default(not rented)
+                                depending on the IsRented and EndDate bindings-->
                                 <Grid BackgroundColor="{Binding IsRented, Converter={StaticResource IsReturnedOnTime}, ConverterParameter={x:Reference Name=endDateLabel}}" Padding="5, 5, 0, 0">
                                 <Label Text="{Binding ItemName}" Grid.Column="0"  />
                                 <Label Text="{Binding IsWaitingForPermission}" Grid.Column="1"  />
                                 <Label Text="{Binding IsRented}" Grid.Column="2"  />
                                 <Label Text="{Binding Username}" Grid.Column="3" />
                                 <Label Text="{Binding Email}" Grid.Column="4" />
+                                 <!--date labels with specified date string format display-->
                                 <Label Text="{Binding StartDate, StringFormat='{0:dd/MM/yyyy}'}" Grid.Column="5" />
                                 <Label Text="{Binding EndDate, StringFormat='{0:dd/MM/yyyy}'}" Grid.Column="6" />
                                 </Grid>

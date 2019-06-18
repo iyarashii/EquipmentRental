@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -12,13 +11,18 @@ namespace EquipmentRental
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class UserList : ContentPage
     {
+        // manager field used for storing UserManager object
         UserManager manager;
 
+        // constructor
         public UserList()
         {
             InitializeComponent();
 
+            // assign new UserManager object to manager field
             manager = UserManager.DefaultManager;
+
+            // on Windows add refresh button to buttons panel
             if (Device.RuntimePlatform == Device.UWP)
             {
                 var refreshButton = new Button
@@ -30,48 +34,58 @@ namespace EquipmentRental
             }
         }
 
-        async void OnLogoutButtonClicked(object sender, EventArgs e)
-        {
-            App.IsUserLoggedIn = false;
-            App.IsLoggedInUserAnAdmin = false;
-            Application.Current.MainPage = new NavigationPage(new LoginPage());
-            await Navigation.PopToRootAsync();
-        }
-
+        // override OnAppearing method to refresh list view items before this page appears
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-
-            // Set syncItems to true in order to synchronize the data on startup when running in offline mode
+            // refresh listview items
             await RefreshItems(true);
         }
-        // Data methods
+
+        // -------------------     Data methods    -------------------
+
+        // approve selected user table item, update table and replace current listview with updated table items
         async Task ApproveUser(User user)
         {
             await manager.ApproveUserAsync(user, this);
             userList.ItemsSource = await manager.GetTableAsync(this);
         }
 
+        // delete selected user table item from the table and replace current listview with updated table items
         async Task DeleteUser(User user)
         {
             await manager.DeleteTableItemAsync(user, this);
             userList.ItemsSource = await manager.GetTableAsync(this);
         }
 
-        // Event handlers
+        // refresh listview table items
+        private async Task RefreshItems(bool showActivityIndicator)
+        {
+            using (var scope = new ActivityIndicatorScope(syncIndicator, showActivityIndicator))
+            {
+                userList.ItemsSource = await manager.GetTableAsync(this);
+            }
+        }
+
+        // -------------------     Event handlers     -------------------
+
+        // event handler that is called when you click on list views viewcell
         public async void OnSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            var user = e.SelectedItem as User;
-            if ( user != null)
+            // pattern matching
+            if (e.SelectedItem is User user)
             {
                 if (Device.RuntimePlatform == Device.Android)
                 {
-                   await DisplayAlert("User " + user.Username, "Press-and-hold to see user managment options" + user.Username, "Got it!");
+                    // on android display this popup message
+                    await DisplayAlert(user.Username, "Press-and-hold to see user "+ user.Username +  " managment options.", "Got it!");
                 }
                 else
                 {
-                    // Windows, not all platforms support the Context Actions yet
+                    // on windows display action sheet popup with 3 buttons
                     string action = await DisplayActionSheet("User " + user.Username + " options:", "Cancel", "Delete", "Approve");
+                    
+                    // do different things depending on which button was pressed
                     switch (action)
                     {
                         case "Cancel":
@@ -85,12 +99,21 @@ namespace EquipmentRental
                     }
                 }
             }
-
             // prevents background getting highlighted
             userList.SelectedItem = null;
         }
 
-        // http://developer.xamarin.com/guides/cross-platform/xamarin-forms/working-with/listview/#context
+        // event handler for clicked logout button
+        async void OnLogoutButtonClicked(object sender, EventArgs e)
+        {
+            // logs user out and changes page to login page
+            App.IsUserLoggedIn = false;
+            App.IsLoggedInUserAnAdmin = false;
+            Application.Current.MainPage = new NavigationPage(new LoginPage());
+            await Navigation.PopToRootAsync();
+        }
+
+        // event handler for Delete context action button
         public async void OnDelete(object sender, EventArgs e)
         {
             var mi = ((MenuItem)sender);
@@ -98,6 +121,7 @@ namespace EquipmentRental
             await DeleteUser(user);
         }
 
+        // event handler for Approve context action button
         public async void OnApprove(object sender, EventArgs e)
         {
             var mi = ((MenuItem)sender);
@@ -105,7 +129,13 @@ namespace EquipmentRental
             await ApproveUser(user);
         }
 
-        // http://developer.xamarin.com/guides/cross-platform/xamarin-forms/working-with/listview/#pulltorefresh
+        // event handler for Refresh button
+        public async void OnRefreshItems(object sender, EventArgs e)
+        {
+            await RefreshItems(true);
+        }
+
+        // event handler that is called when listview is being refreshed
         public async void OnRefresh(object sender, EventArgs e)
         {
             var list = (ListView)sender;
@@ -122,24 +152,9 @@ namespace EquipmentRental
             {
                 list.EndRefresh();
             }
-
             if (error != null)
             {
                 await DisplayAlert("Refresh Error", "Couldn't refresh data (" + error.Message + ")", "OK");
-            }
-        }
-
-
-        public async void OnRefreshItems(object sender, EventArgs e)
-        {
-            await RefreshItems(true);
-        }
-
-        private async Task RefreshItems(bool showActivityIndicator)
-        {
-            using (var scope = new ActivityIndicatorScope(syncIndicator, showActivityIndicator))
-            {
-                userList.ItemsSource = await manager.GetTableAsync(this);
             }
         }
     }

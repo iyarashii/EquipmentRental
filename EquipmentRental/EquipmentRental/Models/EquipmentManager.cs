@@ -10,15 +10,21 @@ using Xamarin.Forms;
 
 namespace EquipmentRental
 {
+    // class derived from TableManager with generic type parameter of Equipment
     public partial class EquipmentManager : TableManager<Equipment>
     {
+        // static property used for creating new object of type EquipmentManager
         public static EquipmentManager DefaultManager { get; private set; } = new EquipmentManager();
 
+        // constructor which derives from TableManager constructor
         private EquipmentManager() : base()
         {
         }
+
+        // override of virtual method that gets elements of the table asynchronously
         public override async Task TableToEnumerableAsync()
         {
+            // when user is not an admin only get table items concerning user or ones that are not rented 
             if (!App.IsLoggedInUserAnAdmin)
             {
                 tableItems = await table
@@ -33,6 +39,7 @@ namespace EquipmentRental
             }
         }
 
+        // method that updates item properties concerning renting
         public async Task ApproveRentalAsync(Equipment item, Page currentPage)
         {
             item.IsWaitingForPermission = false;
@@ -40,12 +47,14 @@ namespace EquipmentRental
             await UpdateTableItemAsync(item, currentPage);
         }
 
+        // method that sets waiting for permission item property flag to true and updates table
         public async Task AskToRentAsync(Equipment item, Page currentPage)
         {
             item.IsWaitingForPermission = true;
             await UpdateTableItemAsync(item, currentPage);
         }
 
+        // method that sets table item properties to default ones, so that item is available to rent
         public async Task MarkItemAsReturnedAsync(Equipment item, Page currentPage)
         {
             item.IsWaitingForPermission = false;
@@ -56,6 +65,5 @@ namespace EquipmentRental
             item.EndDate = null;
             await UpdateTableItemAsync(item, currentPage);
         }
-
     }
 }

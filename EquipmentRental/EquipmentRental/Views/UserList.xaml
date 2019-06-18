@@ -4,6 +4,7 @@
              x:Class="EquipmentRental.UserList"
              Title="Users">
     <ContentPage.ToolbarItems>
+        <!-- toolbar button used for logout -->
         <ToolbarItem Text="Logout" Order="Secondary" Clicked="OnLogoutButtonClicked" />
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
@@ -12,7 +13,8 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <ActivityIndicator Grid.RowSpan="2"
+            <!-- activity indicator used for displaying database loading animation -->
+            <ActivityIndicator Grid.RowSpan="2"
                        HorizontalOptions="Center"
                        VerticalOptions="Center"
                        IsVisible="False"
@@ -26,12 +28,13 @@
                                     <ColumnDefinition/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
+                                <!--buttons panel layout to which some buttons are added from the code behind file-->
                                 <StackLayout x:Name="buttonsPanel" Grid.Column="1" Orientation="Horizontal">
                                 </StackLayout>
                             </Grid>
                     </StackLayout>
                 </StackLayout>
-                
+                <!--list view used for displaying User table items in a form  of grids with 5 columns-->
                 <ListView x:Name="userList"
 				ItemSelected="OnSelected"
                 SeparatorVisibility="Default"
@@ -52,14 +55,14 @@
                 </ListView.Header>
                     <ListView.ItemTemplate>
                         <DataTemplate>
+                            <!--view cell layout-->
                             <ViewCell>
                                 <ViewCell.ContextActions>
+                                    <!--view cell context actions menu buttons, on UWP you can see them after right clicking an item
+                                    in the item list, on android after a press-and-hold-->
                                     <MenuItem Clicked="OnDelete" Text="Delete" CommandParameter="{Binding .}"/>
                                     <MenuItem Clicked="OnApprove" Text="Approve" CommandParameter="{Binding .}"/>
                                 </ViewCell.ContextActions>
-                                <!--<StackLayout HorizontalOptions="StartAndExpand" Orientation="Horizontal" Padding="5,5,0,0">
-                                    <StackLayout VerticalOptions="StartAndExpand" Orientation="Vertical">-->
-                                    <!--<ScrollView>-->
                                         <Grid Padding="5, 5, 0, 0">
                                             <Label Text="{Binding Username}" Grid.Column="0"  />
                                             <Label Text="{Binding Password}" Grid.Column="1"  />
@@ -67,9 +70,6 @@
                                             <Label Text="{Binding IsAdmin}" Grid.Column="3" />
                                             <Label Text="{Binding IsConfirmed}" Grid.Column="4" />
                                         </Grid>
-                                    <!--</ScrollView>-->
-                                    <!--</StackLayout>
-                                </StackLayout>-->
                             </ViewCell>
                     </DataTemplate>
                     </ListView.ItemTemplate>
