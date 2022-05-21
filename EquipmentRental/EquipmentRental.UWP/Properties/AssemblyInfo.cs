@@ -1,4 +1,8 @@
-﻿using System.Reflection;
+﻿// Copyright (c) 2022 iyarashii @ https://github.com/iyarashii 
+// Licensed under the GNU General Public License v3.0,
+// go to https://github.com/iyarashii/EquipmentRental/blob/master/LICENSE for license details.
+
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
