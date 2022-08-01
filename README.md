@@ -1,5 +1,9 @@
 # EquipmentRental
-Xamarin.Forms app that uses Azure database to simulate equipment renting database for the science club.
+Xamarin.Forms app that uses Azure database to simulate equipment renting database for the science club.  
+PC:
+![admin rent image](https://i.imgur.com/sPy0vNn.png)
+Android:
+![android admin rent image](https://i.imgur.com/K4f7ste.png)
 # Usage
 Admins can access Equipment database and users database.  
 Users can only view items that are available to rent (white background) or
